@@ -11,7 +11,7 @@
 
     <!-- mapper -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.hb.cp.dao.mapper"/>
+        <property name="basePackage" value="com.hb.mybatis.mapper"/>
     </bean>
 
 </beans>
