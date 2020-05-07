@@ -1,6 +1,9 @@
 package com.hb.mybatis.base;
 
-import com.hb.mybatis.helper.SqlHelper;
+import com.hb.mybatis.helper.DeleteHelper;
+import com.hb.mybatis.helper.InsertHelper;
+import com.hb.mybatis.helper.SelectHelper;
+import com.hb.mybatis.helper.UpdateHelper;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.unic.util.util.CloneUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +38,7 @@ public class DmlMapper {
      * @return 唯一结果
      */
     public <T> T selectOne(String tableName, Class<T> entityClass, Map<String, Object> conditions, String sort) {
-        String sqlStatement = SqlHelper.buildSelectSelectiveSql(tableName, conditions, sort, null, null);
+        String sqlStatement = SelectHelper.buildSelectSelectiveSql(tableName, conditions, sort, null, null);
         Map<String, Object> result = baseMapper.selectOne(sqlStatement, conditions);
         return CloneUtils.map2Bean(result, entityClass);
     }
@@ -50,7 +53,7 @@ public class DmlMapper {
      * @return 结果集合
      */
     public <T> List<T> selectList(String tableName, Class<T> entityClass, Map<String, Object> conditions, String sort) {
-        String sqlStatement = SqlHelper.buildSelectSelectiveSql(tableName, conditions, sort, null, null);
+        String sqlStatement = SelectHelper.buildSelectSelectiveSql(tableName, conditions, sort, null, null);
         List<Map<String, Object>> result = baseMapper.selectList(sqlStatement, conditions);
         return CloneUtils.maps2Beans(result, entityClass);
     }
@@ -63,7 +66,7 @@ public class DmlMapper {
      * @return 总条数
      */
     public <T> int selectCount(String tableName, Map<String, Object> conditions) {
-        String sqlStatement = SqlHelper.buildSelectCountSelectiveSql(tableName, conditions);
+        String sqlStatement = SelectHelper.buildSelectCountSelectiveSql(tableName, conditions);
         return baseMapper.selectCount(sqlStatement, conditions);
     }
 
@@ -79,7 +82,7 @@ public class DmlMapper {
      * @return 分页集合
      */
     public <T> List<T> selectPages(String tableName, Class<T> entityClass, Map<String, Object> conditions, String sort, Integer startRow, Integer pageNum) {
-        String sqlStatement = SqlHelper.buildSelectSelectiveSql(tableName, conditions, sort, startRow, pageNum);
+        String sqlStatement = SelectHelper.buildSelectSelectiveSql(tableName, conditions, sort, startRow, pageNum);
         List<Map<String, Object>> result = baseMapper.selectPages(sqlStatement, conditions, startRow, pageNum);
         return CloneUtils.maps2Beans(result, entityClass);
     }
@@ -112,7 +115,7 @@ public class DmlMapper {
         if (property == null || property.isEmpty()) {
             return 0;
         }
-        String sqlStatement = SqlHelper.buildInsertSelectiveSql(tableName, property);
+        String sqlStatement = InsertHelper.buildInsertSelectiveSql(tableName, property);
         return baseMapper.insertSelective(sqlStatement, property);
     }
 
@@ -132,7 +135,7 @@ public class DmlMapper {
         if (property == null || property.isEmpty()) {
             return 0;
         }
-        String sqlStatement = SqlHelper.buildUpdateSelectiveSql(tableName, property, conditions);
+        String sqlStatement = UpdateHelper.buildUpdateSelectiveSql(tableName, property, conditions);
         return baseMapper.updateSelectiveByPrimaryKey(sqlStatement, property, conditions);
     }
 
@@ -147,7 +150,7 @@ public class DmlMapper {
         if (conditions == null || conditions.isEmpty()) {
             return 0;
         }
-        String sqlStatement = SqlHelper.buildDeleteSelectiveSql(tableName, conditions);
+        String sqlStatement = DeleteHelper.buildDeleteSelectiveSql(tableName, conditions);
         return baseMapper.deleteBySelective(sqlStatement, conditions);
     }
 
