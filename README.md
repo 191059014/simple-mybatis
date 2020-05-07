@@ -16,4 +16,4 @@
 private DmlMapper dmlMapper;
 ```
 DmlMapper对象方法如下:  
-<img src="https://github.com/191059014/simple-mybatis/tree/master/src/main/resources/image/dmlMapper.jpg" width="50%">
+![dmlMapper所有方法](https://github.com/191059014/simple-mybatis/tree/master/src/main/resources/image/dmlMapper.jpg)
