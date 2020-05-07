@@ -22,13 +22,8 @@ public class DeleteHelper extends AbstractSqlHelper {
     public static String buildDeleteSelectiveSql(String tableName, Map<String, Object> conditions) {
         StringBuilder sb = new StringBuilder("update " + tableName + " set " + RECORDSTATUS + "=" + RecordStateEnum.INVALID.getValue());
         StringBuilder whereSb = new StringBuilder(" where 1=1");
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if (value == null) {
-                continue;
-            }
-            whereSb.append(" and ").append(key).append("=").append("#{params.").append(key).append("}");
+        if (conditions != null && !conditions.isEmpty()) {
+            conditions.forEach((key, value) -> whereSb.append(makeAndEqualsCondition(key, value)));
         }
         sb.append(whereSb.toString());
         return sb.toString();

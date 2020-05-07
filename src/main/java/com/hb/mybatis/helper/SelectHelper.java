@@ -28,27 +28,11 @@ public class SelectHelper extends AbstractSqlHelper {
         StringBuilder sb = new StringBuilder();
         sb.append(makeSelectBase(tableName));
         if (conditions != null && !conditions.isEmpty()) {
-            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                sb.append(makeSelectCondition(entry.getKey(), entry.getValue()));
-            }
+            conditions.forEach((key, value) -> sb.append(makeAndEqualsCondition(key, value)));
         }
-        sb.append(makeSelectSort(sort));
-        sb.append(makePages(startRow, pageNum));
+        sb.append(makeSortCondition(sort));
+        sb.append(makePagesCondition(startRow, pageNum));
         return sb.toString();
-    }
-
-    /**
-     * 组装条件
-     *
-     * @param key   字段名
-     * @param value 字段值
-     * @return 条件sql片段
-     */
-    public static String makeSelectCondition(String key, Object value) {
-        if (value != null) {
-            return " and " + key + "=" + "#{params." + key + "}";
-        }
-        return "";
     }
 
     /**
@@ -62,33 +46,6 @@ public class SelectHelper extends AbstractSqlHelper {
     }
 
     /**
-     * 组装查询排序条件sql片段
-     *
-     * @param sort 排序
-     * @return 排序的sql片段
-     */
-    public static String makeSelectSort(String sort) {
-        if (sort != null && !"".equals(sort)) {
-            return " order by " + sort;
-        }
-        return "";
-    }
-
-    /**
-     * 组装分页条件sql片段
-     *
-     * @param startRow 开始行
-     * @param pageNum  每页条数
-     * @return 分页sql片段
-     */
-    public static String makePages(Integer startRow, Integer pageNum) {
-        if (startRow != null && pageNum != null) {
-            return " limit #{startRow},#{pageNum} ";
-        }
-        return "";
-    }
-
-    /**
      * 构建查询总条数sql语句
      *
      * @param tableName  表名
@@ -99,9 +56,7 @@ public class SelectHelper extends AbstractSqlHelper {
         StringBuilder sb = new StringBuilder();
         sb.append("select count(*) from " + tableName + " where " + RECORDSTATUS + "=" + RecordStateEnum.VALID.getValue());
         if (conditions != null && !conditions.isEmpty()) {
-            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                sb.append(makeSelectCondition(entry.getKey(), entry.getValue()));
-            }
+            conditions.forEach((key, value) -> sb.append(makeAndEqualsCondition(key, value)));
         }
         return sb.toString();
     }

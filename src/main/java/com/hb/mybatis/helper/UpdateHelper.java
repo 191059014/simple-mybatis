@@ -21,23 +21,13 @@ public class UpdateHelper extends AbstractSqlHelper {
     public static String buildUpdateSelectiveSql(String tableName, Map<String, String> property, Map<String, Object> conditions) {
         StringBuilder sb = new StringBuilder("update " + tableName + " set ");
         StringBuilder cloumSb = new StringBuilder();
-        for (Map.Entry<String, String> entry : property.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (value == null) {
-                continue;
+        property.forEach((key, value) -> {
+            if (value != null) {
+                cloumSb.append(key).append("=").append("#{cloumns.").append(key).append("}").append(",");
             }
-            cloumSb.append(key).append("=").append("#{cloumns.").append(key).append("}").append(",");
-        }
+        });
         StringBuilder whereSb = new StringBuilder(" where 1=1");
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if (value == null) {
-                continue;
-            }
-            whereSb.append(" and ").append(key).append("=").append("#{params.").append(key).append("}");
-        }
+        conditions.forEach((key, value) -> whereSb.append(makeAndEqualsCondition(key, value)));
         String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1);
         sb.append(cloumnSql).append(whereSb.toString());
         return sb.toString();

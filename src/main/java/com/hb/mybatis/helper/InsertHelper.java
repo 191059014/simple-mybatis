@@ -21,15 +21,12 @@ public class InsertHelper extends AbstractSqlHelper {
         StringBuilder sb = new StringBuilder("insert into " + tableName);
         StringBuilder cloumSb = new StringBuilder(" (");
         StringBuilder propertySb = new StringBuilder(" values (");
-        for (Map.Entry<String, String> entry : property.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (value == null) {
-                continue;
+        property.forEach((key, value) -> {
+            if (value != null) {
+                cloumSb.append(key).append(",");
+                propertySb.append("#{params.").append(key).append("}").append(",");
             }
-            cloumSb.append(key).append(",");
-            propertySb.append("#{params." + key + "}").append(",");
-        }
+        });
         String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1) + ")";
         String propertySql = propertySb.toString().substring(0, propertySb.toString().length() - 1) + ")";
         sb.append(cloumnSql).append(propertySql);
