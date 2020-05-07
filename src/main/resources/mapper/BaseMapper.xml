@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mybatis.mapper.BaseMapper">
+
+    <!-- 选择性插入 -->
+    <insert id="insertSelective">
+        ${sqlStatement}
+    </insert>
+
+    <!-- 选择性更新 -->
+    <update id="updateSelectiveByPrimaryKey">
+        ${sqlStatement}
+    </update>
+
+    <!-- 选择性删除 -->
+    <delete id="deleteBySelective">
+        ${sqlStatement}
+    </delete>
+
+    <!-- 条件查询唯一结果 -->
+    <select id="selectOne" resultType="java.util.Map">
+      ${sqlStatement}
+    </select>
+
+    <!-- 条件查询结果集合 -->
+    <select id="selectList" resultType="java.util.Map">
+        ${sqlStatement}
+    </select>
+
+    <!-- 分页条件查询结果集合 -->
+    <select id="selectPages" resultType="java.util.Map">
+        ${sqlStatement}
+    </select>
+
+    <!-- 动态条件查询结果集合 -->
+    <select id="dynamicSelect" resultType="java.util.Map">
+        ${sqlStatement}
+    </select>
+
+    <!-- 查询总条数 -->
+    <select id="selectCount" resultType="java.lang.Integer">
+        ${sqlStatement}
+    </select>
+
+</mapper>
