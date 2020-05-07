@@ -20,6 +20,7 @@ public class DeleteHelper extends AbstractSqlHelper {
      * @return 删除sql语句
      */
     public static String buildDeleteSelectiveSql(String tableName, Map<String, Object> conditions) {
+        assertNotEmpty(conditions,"delete conditions cannot empty");
         StringBuilder sb = new StringBuilder("update " + tableName + " set " + RECORDSTATUS + "=" + RecordStateEnum.INVALID.getValue());
         StringBuilder whereSb = new StringBuilder(" where 1=1");
         if (conditions != null && !conditions.isEmpty()) {

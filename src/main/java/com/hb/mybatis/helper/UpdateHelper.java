@@ -1,6 +1,7 @@
 package com.hb.mybatis.helper;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 更新sql工具类
@@ -19,6 +20,8 @@ public class UpdateHelper extends AbstractSqlHelper {
      * @return 更新sql语句
      */
     public static String buildUpdateSelectiveSql(String tableName, Map<String, String> property, Map<String, Object> conditions) {
+        assertNotEmpty(property,"update colums cannot empty");
+        assertNotEmpty(property,"update conditions cannot empty");
         StringBuilder sb = new StringBuilder("update " + tableName + " set ");
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {

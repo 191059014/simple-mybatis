@@ -54,7 +54,7 @@ public class SelectHelper extends AbstractSqlHelper {
      */
     public static String buildSelectCountSelectiveSql(String tableName, Map<String, Object> conditions) {
         StringBuilder sb = new StringBuilder();
-        sb.append("select count(*) from " + tableName + " where " + RECORDSTATUS + "=" + RecordStateEnum.VALID.getValue());
+        sb.append("select count(*) from ").append(tableName).append(" where ").append(RECORDSTATUS).append("=").append(RecordStateEnum.VALID.getValue());
         if (conditions != null && !conditions.isEmpty()) {
             conditions.forEach((key, value) -> sb.append(makeAndEqualsCondition(key, value)));
         }

@@ -18,6 +18,7 @@ public class InsertHelper extends AbstractSqlHelper {
      * @return 插入sql语句
      */
     public static String buildInsertSelectiveSql(String tableName, Map<String, String> property) {
+        assertNotEmpty(property, "insert columns cannot empty");
         StringBuilder sb = new StringBuilder("insert into " + tableName);
         StringBuilder cloumSb = new StringBuilder(" (");
         StringBuilder propertySb = new StringBuilder(" values (");

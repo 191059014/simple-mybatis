@@ -1,5 +1,7 @@
 package com.hb.mybatis.helper;
 
+import java.util.Map;
+
 /**
  * sql辅助工具抽象类
  *
@@ -52,6 +54,18 @@ public abstract class AbstractSqlHelper {
             return " limit #{startRow},#{pageNum} ";
         }
         return "";
+    }
+
+    /**
+     * 不为空判断
+     *
+     * @param map     map集合
+     * @param message 错误消息
+     */
+    protected static void assertNotEmpty(Map map, String message) {
+        if (map == null || map.isEmpty()) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
 }
