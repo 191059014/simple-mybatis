@@ -24,7 +24,7 @@ public class SqlBuilderUtils {
     public static final String COMMA = ",";
 
     // 美元符号
-    public static final String DOLLAR_SYMBOL = "$";
+    public static final String DOLLAR_SYMBOL = "#";
 
     // 左小括号
     public static final String LEFT_SMALL_BRACKET = "(";
