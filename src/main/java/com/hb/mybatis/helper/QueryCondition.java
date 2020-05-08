@@ -75,7 +75,7 @@ public class QueryCondition {
      * @param sort 排序条件
      * @return QueryCondition
      */
-    public QueryCondition sort(String sort) {
+    public QueryCondition orderBy(String sort) {
         this.sort = sort;
         return this;
     }
@@ -166,10 +166,7 @@ public class QueryCondition {
      * @return 排序sql
      */
     private String buildSortSql() {
-        if (sort != null && !"".equals(sort)) {
-            return SqlBuilderUtils.ORDER_BY + sort;
-        }
-        return "";
+        return this.sort != null && !"".equals(this.sort) ? " order by " + this.sort : "";
     }
 
     /**
@@ -178,10 +175,8 @@ public class QueryCondition {
      * @return 分页sql
      */
     private String buildPagesSql() {
-        if (limitStartRows != null && limitPageSize != null) {
-            return SqlBuilderUtils.LIMIT + SqlBuilderUtils.createSingleParamSql(SqlBuilderUtils.START_ROWS) + SqlBuilderUtils.COMMA + SqlBuilderUtils.createSingleParamSql(SqlBuilderUtils.PAGE_SIZE);
-        }
-        return "";
+        return this.limitStartRows != null && this.limitPageSize != null ? " limit " + SqlBuilderUtils.createSingleParamSql("startRows") + "," + SqlBuilderUtils.createSingleParamSql("pageSize") : "";
+
     }
 
 }

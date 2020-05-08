@@ -1,5 +1,5 @@
 # simple-mybatis
-让简单的crud操作告别繁琐的sql，同时也支持自己写mybatis的xml文件。
+让简单的crud操作告别繁琐的sql（可以防sql注入），同时也支持自己写mybatis的xml文件。
 ## 引入方法
 首先下载项目，然后依赖pom文件，配置扫描config/service-simplemybatis-context.xml。
 - 依赖pom文件
@@ -28,10 +28,12 @@ public int deleteBySelective(String tableName, Map<String, Object> conditions)
 ## 示例
 ```
 QueryCondition queryCondition = QueryCondition.build("t_user")
-                .addCondition(QueryType.LIKE, "userName", "zhangsan")
                 .addCondition(QueryType.EQUALS, "age", 18)
-                .sort("createTime desc")
+                .addCondition(QueryType.LIKE, "userName", "zhangsan")
+                .addCondition(QueryType.IN, "sex", Arrays.asList("M", "F"))
+                .orderBy("createTime desc")
                 .limit(1, 10);
 List<User> userList = dmlMapper.dynamicSelect(User.class, queryCondition);
+PagesResult<List<User>> pageResult = dmlMapper.selectPages(User.class, queryCondition);
 ```
 
