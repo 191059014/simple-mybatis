@@ -70,7 +70,7 @@ public enum QueryType implements QueryBuilder {
     LIKE(" like ", "") {
         @Override
         public String buildSql(String key, Object value) {
-            return SqlBuilderUtils.AND + key + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(key) + SqlBuilderUtils.PERCENT;
+            return SqlBuilderUtils.AND + key + getSymbolPrefix() + SqlBuilderUtils.SINGLE_QUOTATION_MARK + value + SqlBuilderUtils.PERCENT + SqlBuilderUtils.SINGLE_QUOTATION_MARK;
         }
 
         @Override

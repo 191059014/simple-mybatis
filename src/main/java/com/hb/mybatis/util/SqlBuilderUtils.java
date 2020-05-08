@@ -68,6 +68,9 @@ public class SqlBuilderUtils {
     // 等于符号
     public static final String EQUALS = "=";
 
+    // 单引号
+    public static final String SINGLE_QUOTATION_MARK = "'";
+
     /**
      * 组装条件集合
      *
