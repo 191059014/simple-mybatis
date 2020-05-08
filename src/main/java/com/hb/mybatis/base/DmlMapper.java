@@ -61,7 +61,7 @@ public class DmlMapper {
      */
     public <T> PagesResult<T> selectPages(Class<T> entityClass, QueryCondition query) {
         int count = selectCount(query);
-        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
+        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(), query.getParams());
         List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
         return new PagesResult<>(tList, count, query.getLimitStartRows(), query.getLimitPageSize());
     }
