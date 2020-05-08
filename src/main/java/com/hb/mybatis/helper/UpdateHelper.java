@@ -1,5 +1,7 @@
 package com.hb.mybatis.helper;
 
+import com.hb.mybatis.util.SqlBuilderUtils;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,17 +22,22 @@ public class UpdateHelper extends AbstractSqlHelper {
      * @return 更新sql语句
      */
     public static String buildUpdateSelectiveSql(String tableName, Map<String, String> property, Map<String, Object> conditions) {
-        assertNotEmpty(property,"update colums cannot empty");
-        assertNotEmpty(property,"update conditions cannot empty");
+        assertNotEmpty(property, "update colums cannot empty");
+        assertNotEmpty(property, "update conditions cannot empty");
         StringBuilder sb = new StringBuilder("update " + tableName + " set ");
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append("=").append("#{cloumns.").append(key).append("}").append(",");
+                cloumSb.append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleParamSql(key)).append(SqlBuilderUtils.COMMA);
             }
         });
         StringBuilder whereSb = new StringBuilder(" where 1=1");
-        conditions.forEach((key, value) -> whereSb.append(makeAndEqualsCondition(key, value)));
+        conditions.forEach((key, value) -> {
+            if (value != null) {
+                whereSb.append(SqlBuilderUtils.AND).append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleParamSql(key));
+            }
+        });
+        // 去掉最后一个逗号
         String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1);
         sb.append(cloumnSql).append(whereSb.toString());
         return sb.toString();

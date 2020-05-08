@@ -15,22 +15,13 @@ import java.util.Map;
 public interface BaseMapper {
 
     /**
-     * 查询唯一结果集
+     * 动态条件查询集合
      *
      * @param sqlStatement sql语句
      * @param params       条件集合
      * @return 结果集合
      */
-    Map<String, Object> selectOne(@Param("sqlStatement") String sqlStatement, @Param("params") Map<String, Object> params);
-
-    /**
-     * 查询集合
-     *
-     * @param sqlStatement sql语句
-     * @param params       条件集合
-     * @return 结果集合
-     */
-    List<Map<String, Object>> selectList(@Param("sqlStatement") String sqlStatement, @Param("params") Map<String, Object> params);
+    List<Map<String, Object>> dynamicSelect(@Param("sqlStatement") String sqlStatement, @Param("params") Map<String, Object> params);
 
     /**
      * 查询总条数
@@ -40,26 +31,6 @@ public interface BaseMapper {
      * @return 结果集合
      */
     int selectCount(@Param("sqlStatement") String sqlStatement, @Param("params") Map<String, Object> params);
-
-    /**
-     * 分页条件查询集合
-     *
-     * @param sqlStatement sql语句
-     * @param params       条件集合
-     * @param startRow     开始行
-     * @param pageNum      每页条数
-     * @return 结果集合
-     */
-    List<Map<String, Object>> selectPages(@Param("sqlStatement") String sqlStatement, @Param("params") Map<String, Object> params, @Param("startRow") Integer startRow, @Param("pageNum") Integer pageNum);
-
-    /**
-     * 动态条件查询集合
-     *
-     * @param sqlStatement sql语句
-     * @param params       条件集合
-     * @return 结果集合
-     */
-    List<Map<String, Object>> dynamicSelect(@Param("sqlStatement") String sqlStatement, @Param("params") Map<String, Object> params);
 
     /**
      * 选择性插入

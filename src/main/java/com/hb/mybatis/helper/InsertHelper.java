@@ -1,5 +1,7 @@
 package com.hb.mybatis.helper;
 
+import com.hb.mybatis.util.SqlBuilderUtils;
+
 import java.util.Map;
 
 /**
@@ -20,14 +22,17 @@ public class InsertHelper extends AbstractSqlHelper {
     public static String buildInsertSelectiveSql(String tableName, Map<String, String> property) {
         assertNotEmpty(property, "insert columns cannot empty");
         StringBuilder sb = new StringBuilder("insert into " + tableName);
-        StringBuilder cloumSb = new StringBuilder(" (");
-        StringBuilder propertySb = new StringBuilder(" values (");
+        // 插入的列
+        StringBuilder cloumSb = new StringBuilder(SqlBuilderUtils.LEFT_SMALL_BRACKET);
+        // 插入的列对应的值
+        StringBuilder propertySb = new StringBuilder(" values " + SqlBuilderUtils.LEFT_SMALL_BRACKET);
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(",");
-                propertySb.append("#{params.").append(key).append("}").append(",");
+                cloumSb.append(key).append(SqlBuilderUtils.COMMA);
+                propertySb.append(SqlBuilderUtils.createSingleParamSql(key)).append(SqlBuilderUtils.COMMA);
             }
         });
+        // 去掉末尾的逗号
         String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1) + ")";
         String propertySql = propertySb.toString().substring(0, propertySb.toString().length() - 1) + ")";
         sb.append(cloumnSql).append(propertySql);

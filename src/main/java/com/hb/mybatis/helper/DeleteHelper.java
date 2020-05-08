@@ -1,6 +1,6 @@
 package com.hb.mybatis.helper;
 
-import com.hb.mybatis.enumutil.RecordStateEnum;
+import com.hb.mybatis.util.SqlBuilderUtils;
 
 import java.util.Map;
 
@@ -20,12 +20,14 @@ public class DeleteHelper extends AbstractSqlHelper {
      * @return 删除sql语句
      */
     public static String buildDeleteSelectiveSql(String tableName, Map<String, Object> conditions) {
-        assertNotEmpty(conditions,"delete conditions cannot empty");
-        StringBuilder sb = new StringBuilder("update " + tableName + " set " + RECORDSTATUS + "=" + RecordStateEnum.INVALID.getValue());
+        assertNotEmpty(conditions, "delete conditions cannot empty");
+        StringBuilder sb = new StringBuilder("update " + tableName + " set " + SqlBuilderUtils.createInValidRecordStatusSql());
         StringBuilder whereSb = new StringBuilder(" where 1=1");
-        if (conditions != null && !conditions.isEmpty()) {
-            conditions.forEach((key, value) -> whereSb.append(makeAndEqualsCondition(key, value)));
-        }
+        conditions.forEach((key, value) -> {
+            if (value != null) {
+                whereSb.append(SqlBuilderUtils.AND).append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleParamSql(key));
+            }
+        });
         sb.append(whereSb.toString());
         return sb.toString();
     }

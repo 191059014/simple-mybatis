@@ -16,4 +16,22 @@
 private DmlMapper dmlMapper;
 ```
 DmlMapper对象方法如下:  
-![dmlMapper所有方法](src/main/resources/image/dmlMapper.jpg)
+```
+public <T> List<T> dynamicSelect(Class<T> entityClass, QueryCondition query)
+public <T> int selectCount(QueryCondition query)
+public <T> PagesResult<T> selectPages(Class<T> entityClass, QueryCondition query)
+public <T> List<T> customSelect(String sqlStatement, Class<T> entityClass, Map<String, Object> conditions)
+public <T> int insertBySelective(String tableName, T entity)
+public <T> int updateBySelective(String tableName, T entity, Map<String, Object> conditions)
+public int deleteBySelective(String tableName, Map<String, Object> conditions)
+```
+## 示例
+```
+QueryCondition queryCondition = QueryCondition.build("t_user")
+                .addCondition(QueryType.LIKE, "userName", "zhangsan")
+                .addCondition(QueryType.EQUALS, "age", 18)
+                .sort("createTime desc")
+                .limit(1, 10);
+List<User> userList = dmlMapper.dynamicSelect(User.class, queryCondition);
+```
+
