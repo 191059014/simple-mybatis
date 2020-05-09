@@ -29,7 +29,7 @@ public int deleteBySelective(String tableName, Map<String, Object> conditions)
 ```
 QueryCondition queryCondition = QueryCondition.build("t_user")
                 .addCondition(QueryType.EQUALS, "age", 18)
-                .addCondition(QueryType.LIKE, "userName", "zhangsan")
+                .addCondition(QueryType.LIKE, "user_name", "zhangsan")
                 .addCondition(QueryType.IN, "sex", Arrays.asList("M", "F"))
                 .orderBy("createTime desc")
                 .limit(1, 10);
