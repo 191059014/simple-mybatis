@@ -19,8 +19,8 @@ public class MyMapWrapper extends MapWrapper {
     }
 
     @Override
-    public String findProperty(String name, boolean useCamelCaseMapping) {
-        return useCamelCaseMapping && name.contains("_") ? StringUtils.underline2Hump(name) : name;
+    public String findProperty(String name, boolean useHumpMapping) {
+        return useHumpMapping && name.contains("_") ? StringUtils.underline2Hump(name) : name;
     }
 
 }
