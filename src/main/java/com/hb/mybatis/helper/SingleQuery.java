@@ -12,14 +12,14 @@ public class SingleQuery {
     private QueryBuilder queryBuilder;
 
     // 字段名
-    private String key;
+    private String columName;
 
     // 字段值
     private Object value;
 
-    public SingleQuery(QueryBuilder queryBuilder, String key, Object value) {
+    public SingleQuery(QueryBuilder queryBuilder, String columName, Object value) {
         this.queryBuilder = queryBuilder;
-        this.key = key;
+        this.columName = columName;
         this.value = value;
     }
 
@@ -27,8 +27,8 @@ public class SingleQuery {
         return queryBuilder;
     }
 
-    public String getKey() {
-        return key;
+    public String getColumName() {
+        return columName;
     }
 
     public Object getValue() {

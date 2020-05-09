@@ -13,19 +13,19 @@ public interface QueryBuilder {
     /**
      * 构建sql
      *
-     * @param key   字段名
-     * @param value 字段值
+     * @param columnName 字段名
+     * @param value      字段值
      * @return sql语句
      */
-    String buildSql(String key, Object value);
+    String buildSql(String columnName, Object value);
 
     /**
      * 构建条件
      *
-     * @param key   字段名
-     * @param value 查询条件值
+     * @param columnName 字段名
+     * @param value      查询条件值
      * @return 条件集合
      */
-    Map<String, Object> buildConditions(String key, Object value);
+    Map<String, Object> buildConditions(String columnName, Object value);
 
 }

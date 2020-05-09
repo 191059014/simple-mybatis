@@ -60,12 +60,12 @@ public class QueryCondition {
      * 添加条件
      *
      * @param queryBuilder 操作类型
-     * @param key          字段名
+     * @param columnName          字段名
      * @param value        值
      * @return QueryCondition
      */
-    public QueryCondition addCondition(QueryBuilder queryBuilder, String key, Object value) {
-        this.queryList.add(new SingleQuery(queryBuilder, key, value));
+    public QueryCondition addCondition(QueryBuilder queryBuilder, String columnName, Object value) {
+        this.queryList.add(new SingleQuery(queryBuilder, columnName, value));
         return this;
     }
 
@@ -130,7 +130,7 @@ public class QueryCondition {
     public Map<String, Object> getParams() {
         Map<String, Object> conditions = new HashMap<>();
         queryList.forEach(query -> {
-            conditions.putAll(query.getQueryBuilder().buildConditions(query.getKey(), query.getValue()));
+            conditions.putAll(query.getQueryBuilder().buildConditions(query.getColumName(), query.getValue()));
         });
         if (limitStartRows != null && limitPageSize != null) {
             conditions.put(SqlBuilderUtils.START_ROWS, limitStartRows);
@@ -155,7 +155,7 @@ public class QueryCondition {
     private String buildSqlByQueryList() {
         StringBuilder sb = new StringBuilder();
         queryList.forEach(query -> {
-            sb.append(query.getQueryBuilder().buildSql(query.getKey(), query.getValue()));
+            sb.append(query.getQueryBuilder().buildSql(query.getColumName(), query.getValue()));
         });
         return sb.toString();
     }
