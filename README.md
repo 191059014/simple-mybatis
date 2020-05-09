@@ -36,4 +36,6 @@ QueryCondition queryCondition = QueryCondition.build("t_user")
 List<User> userList = dmlMapper.dynamicSelect(User.class, queryCondition);
 PagesResult<List<User>> pageResult = dmlMapper.selectPages(User.class, queryCondition);
 ```
+## 其他
+- 如果需要增加数据库字段名和实体类字段名的驼峰处理，则增加配置：simple.mybatis.result.isHumpMapping=true 即可
 
