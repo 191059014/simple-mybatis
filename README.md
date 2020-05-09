@@ -37,5 +37,15 @@ List<User> userList = dmlMapper.dynamicSelect(User.class, queryCondition);
 PagesResult<List<User>> pageResult = dmlMapper.selectPages(User.class, queryCondition);
 ```
 ## 其他
-- 如果需要增加数据库字段名和实体类字段名的驼峰处理，则增加配置：simple.mybatis.result.isHumpMapping=true 即可
+- 如果数据库字段为user_name，实体类字段为userName，则调用以上api的时候需要在mybatis-config.xml增加驼峰映射配置：
+```
+<configuration>
+    <settings>
+        // 允许驼峰映射 
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    // 自定义map类型的驼峰映射逻辑 
+    <objectWrapperFactory type="com.hb.mybatis.config.MapWrapperFactory"/>
+</configuration>
+```
 
