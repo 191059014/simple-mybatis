@@ -66,11 +66,38 @@ public enum QueryType implements QueryBuilder {
         }
 
     },
+
+    // 大于等于
+    MAX_EQUALS_THAN(" >= ", "") {
+        @Override
+        public String buildSql(String key, Object value) {
+            return SqlBuilderUtils.AND + key + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(key);
+        }
+
+        @Override
+        public Map<String, Object> buildConditions(String key, Object value) {
+            return SqlBuilderUtils.createSingleConditionMap(key, value);
+        }
+
+    },
+    // 小于等于
+    MIN_EQUALS_THAN(" <= ", "") {
+        @Override
+        public String buildSql(String key, Object value) {
+            return SqlBuilderUtils.AND + key + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(key);
+        }
+
+        @Override
+        public Map<String, Object> buildConditions(String key, Object value) {
+            return SqlBuilderUtils.createSingleConditionMap(key, value);
+        }
+
+    },
     // 模糊匹配
     LIKE(" like ", "") {
         @Override
         public String buildSql(String key, Object value) {
-            return SqlBuilderUtils.AND + key + getSymbolPrefix() + SqlBuilderUtils.SINGLE_QUOTATION_MARK + value + SqlBuilderUtils.PERCENT + SqlBuilderUtils.SINGLE_QUOTATION_MARK;
+            return SqlBuilderUtils.AND + key + getSymbolPrefix() + SqlBuilderUtils.CONCAT + SqlBuilderUtils.LEFT_SMALL_BRACKET + SqlBuilderUtils.createSingleParamSql(key) + SqlBuilderUtils.COMMA + SqlBuilderUtils.SINGLE_QUOTATION_MARK + SqlBuilderUtils.PERCENT + SqlBuilderUtils.SINGLE_QUOTATION_MARK + SqlBuilderUtils.RIGHT_SMALL_BRACKET;
         }
 
         @Override

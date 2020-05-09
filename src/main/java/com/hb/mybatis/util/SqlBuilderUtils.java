@@ -71,6 +71,9 @@ public class SqlBuilderUtils {
     // 单引号
     public static final String SINGLE_QUOTATION_MARK = "'";
 
+    // 字符串连接
+    public static final String CONCAT = "concat";
+
     /**
      * 组装条件集合
      *

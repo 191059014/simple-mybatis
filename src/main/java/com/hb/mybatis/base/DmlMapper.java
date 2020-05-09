@@ -1,5 +1,6 @@
 package com.hb.mybatis.base;
 
+import com.alibaba.fastjson.JSON;
 import com.hb.mybatis.helper.DeleteHelper;
 import com.hb.mybatis.helper.InsertHelper;
 import com.hb.mybatis.helper.QueryCondition;
@@ -7,9 +8,15 @@ import com.hb.mybatis.helper.UpdateHelper;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PagesResult;
 import com.hb.unic.util.util.CloneUtils;
+import com.hb.unic.util.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +28,29 @@ import java.util.Map;
  * @date 2019年10月12日 14时09分
  */
 @Component
-public class DmlMapper {
+public class DmlMapper implements InitializingBean {
+
+    /**
+     * the constant logger
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DmlMapper.class);
 
     /**
      * mapper基类
      */
     @Autowired
     private BaseMapper baseMapper;
+
+    /**
+     * 是否驼峰映射
+     */
+    @Value("${simple.mybatis.result.isHumpMapping:false}")
+    private boolean isHumpMapping;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LOGGER.info("open hump mapping: {}", isHumpMapping);
+    }
 
     /**
      * 通过QueryCondition来查询
@@ -38,8 +61,8 @@ public class DmlMapper {
      * @return 集合
      */
     public <T> List<T> dynamicSelect(Class<T> entityClass, QueryCondition query) {
-        List<Map<String, Object>> result = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
-        return CloneUtils.maps2Beans(result, entityClass);
+        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
+        return isHumpMapping ? handleHump(entityClass, queryResult) : CloneUtils.maps2Beans(queryResult, entityClass);
     }
 
     /**
@@ -62,7 +85,12 @@ public class DmlMapper {
     public <T> PagesResult<T> selectPages(Class<T> entityClass, QueryCondition query) {
         int count = selectCount(query);
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(), query.getParams());
-        List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
+        List<T> tList = null;
+        if (isHumpMapping) {
+            tList = handleHump(entityClass, queryResult);
+        } else {
+            tList = CloneUtils.maps2Beans(queryResult, entityClass);
+        }
         return new PagesResult<>(tList, count, query.getLimitStartRows(), query.getLimitPageSize());
     }
 
@@ -75,8 +103,8 @@ public class DmlMapper {
      * @return 结果集合
      */
     public <T> List<T> customSelect(String sqlStatement, Class<T> entityClass, Map<String, Object> conditions) {
-        List<Map<String, Object>> result = baseMapper.dynamicSelect(sqlStatement, conditions);
-        return CloneUtils.maps2Beans(result, entityClass);
+        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(sqlStatement, conditions);
+        return isHumpMapping ? handleHump(entityClass, queryResult) : CloneUtils.maps2Beans(queryResult, entityClass);
     }
 
     /**
@@ -131,6 +159,20 @@ public class DmlMapper {
         }
         String sqlStatement = DeleteHelper.buildDeleteSelectiveSql(tableName, conditions);
         return baseMapper.deleteBySelective(sqlStatement, conditions);
+    }
+
+    /**
+     * 驼峰处理
+     *
+     * @param entityClass 目标类
+     * @param list        查询结果
+     * @param <T>         类
+     * @return 集合
+     */
+    private <T> List<T> handleHump(Class<T> entityClass, List<Map<String, Object>> list) {
+        List<T> tList = new ArrayList<>();
+        list.forEach(map -> tList.add(StringUtils.underline2Snake(JSON.toJSONString(map), entityClass)));
+        return tList;
     }
 
 }
