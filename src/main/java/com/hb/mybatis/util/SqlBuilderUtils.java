@@ -56,15 +56,6 @@ public class SqlBuilderUtils {
     // pageSize
     public static final String PAGE_SIZE = "pageSize";
 
-    // recordStatus
-    public static final String RECORD_STATUS = "recordStatus";
-
-    // recordStatus无效
-    public static final int RECORD_STATUS_INVALID = 0;
-
-    // recordStatus有效
-    public static final int RECORD_STATUS_VALID = 1;
-
     // 等于符号
     public static final String EQUALS = "=";
 
@@ -98,21 +89,13 @@ public class SqlBuilderUtils {
     }
 
     /**
-     * 生成带“记录状态”为“有效”的sql
+     * 生成${cloumns.paramName}字符串
      *
-     * @return 带有效状态的sql
+     * @param paramName 参数名
+     * @return 字符串
      */
-    public static String createValidRecordStatusSql() {
-        return RECORD_STATUS + EQUALS + RECORD_STATUS_VALID;
-    }
-
-    /**
-     * 生成带“记录状态”为“无效”的sql
-     *
-     * @return 带有效状态的sql
-     */
-    public static String createInValidRecordStatusSql() {
-        return RECORD_STATUS + EQUALS + RECORD_STATUS_INVALID;
+    public static String createSingleColumnSql(String paramName) {
+        return DOLLAR_SYMBOL + LEFT_MIDDLE_BRACKET + COLUMS_NAME + DOT + paramName + RIGHT_MIDDLE_BRACKET;
     }
 
 }

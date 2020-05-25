@@ -19,12 +19,12 @@ public class DeleteHelper extends AbstractSqlHelper {
      * @param conditions 条件集合
      * @return 删除sql语句
      */
-    public static String buildDeleteSelectiveSql(String tableName, Map<String, Object> conditions) {
+    public static String buildDeleteSelectiveSql(String tableName, Map<String, String> conditions) {
         assertNotEmpty(conditions, "delete conditions cannot empty");
-        StringBuilder sb = new StringBuilder("update " + tableName + " set " + SqlBuilderUtils.createInValidRecordStatusSql());
+        StringBuilder sb = new StringBuilder("delete from " + tableName);
         StringBuilder whereSb = new StringBuilder(" where 1=1");
         conditions.forEach((key, value) -> {
-            if (value != null) {
+            if (value != null && !"".equals(value)) {
                 whereSb.append(SqlBuilderUtils.AND).append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleParamSql(key));
             }
         });

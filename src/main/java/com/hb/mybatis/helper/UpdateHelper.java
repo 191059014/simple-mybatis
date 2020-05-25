@@ -28,7 +28,7 @@ public class UpdateHelper extends AbstractSqlHelper {
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleParamSql(key)).append(SqlBuilderUtils.COMMA);
+                cloumSb.append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleColumnSql(key)).append(SqlBuilderUtils.COMMA);
             }
         });
         StringBuilder whereSb = new StringBuilder(" where 1=1");

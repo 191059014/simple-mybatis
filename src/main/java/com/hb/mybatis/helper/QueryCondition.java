@@ -40,27 +40,24 @@ public class QueryCondition {
      */
     private Integer limitPageSize;
 
-    public QueryCondition(String tableName) {
-        this.tableName = tableName;
-    }
-
     /**
      * 构建QueryCondition对象
      *
      * @return QueryCondition
      */
-    public static QueryCondition build(String tableName) {
-        if (tableName == null || "".equals(tableName)) {
-            throw new IllegalArgumentException("tableName cannot empty");
-        }
-        return new QueryCondition(tableName);
+    public static QueryCondition build() {
+        return new QueryCondition();
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     /**
      * 添加条件
      *
      * @param queryBuilder 操作类型
-     * @param columnName          字段名
+     * @param columnName   字段名
      * @param value        值
      * @return QueryCondition
      */
@@ -99,7 +96,7 @@ public class QueryCondition {
      * @return sql
      */
     public String getCountSql() {
-        String baseSql = "select count(1) from " + tableName + " where 1=1 ";
+        String baseSql = "select count(1) from " + tableName + " where 1=1";
         return baseSql + buildSqlByQueryList();
     }
 
@@ -109,7 +106,7 @@ public class QueryCondition {
      * @return sql
      */
     public String getSimpleSql() {
-        String baseSql = "select * from " + tableName + " where 1=1 ";
+        String baseSql = "select * from " + tableName + " where 1=1";
         return baseSql + buildSqlByQueryList() + buildSortSql();
     }
 
