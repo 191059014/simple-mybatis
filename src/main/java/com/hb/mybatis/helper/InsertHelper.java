@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/7 17:03
  */
-public class InsertHelper extends AbstractSqlHelper {
+public class InsertHelper {
 
     /**
      * 构建插入sql语句
@@ -19,8 +19,7 @@ public class InsertHelper extends AbstractSqlHelper {
      * @param property  字段集合
      * @return 插入sql语句
      */
-    public static String buildInsertSelectiveSql(String tableName, Map<String, String> property) {
-        assertNotEmpty(property, "insert columns cannot empty");
+    public static String buildInsertSelectiveSql(String tableName, Map<String, Object> property) {
         StringBuilder sb = new StringBuilder("insert into " + tableName);
         // 插入的列
         StringBuilder cloumSb = new StringBuilder(SqlBuilderUtils.LEFT_SMALL_BRACKET);

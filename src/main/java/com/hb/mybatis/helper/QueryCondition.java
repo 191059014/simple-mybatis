@@ -2,9 +2,6 @@ package com.hb.mybatis.helper;
 
 import com.hb.mybatis.util.SqlBuilderUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,11 +16,6 @@ public class QueryCondition {
      * 表名
      */
     private String tableName;
-
-    /**
-     * 查询条件集合
-     */
-    private List<SingleQuery> queryList = new ArrayList<>();
 
     /**
      * 排序
@@ -41,6 +33,11 @@ public class QueryCondition {
     private Integer limitPageSize;
 
     /**
+     * where条件
+     */
+    private WhereCondition whereCondition = WhereCondition.build();
+
+    /**
      * 构建QueryCondition对象
      *
      * @return QueryCondition
@@ -56,13 +53,13 @@ public class QueryCondition {
     /**
      * 添加条件
      *
-     * @param queryBuilder 操作类型
-     * @param columnName   字段名
-     * @param value        值
+     * @param singleWhereBuilder 操作类型
+     * @param columnName         字段名
+     * @param value              值
      * @return QueryCondition
      */
-    public QueryCondition addCondition(QueryBuilder queryBuilder, String columnName, Object value) {
-        this.queryList.add(new SingleQuery(queryBuilder, columnName, value));
+    public QueryCondition addCondition(SingleWhereBuilder singleWhereBuilder, String columnName, Object value) {
+        this.whereCondition.addCondition(singleWhereBuilder, columnName, value);
         return this;
     }
 
@@ -96,8 +93,8 @@ public class QueryCondition {
      * @return sql
      */
     public String getCountSql() {
-        String baseSql = "select count(1) from " + tableName + " where 1=1";
-        return baseSql + buildSqlByQueryList();
+        String baseSql = "select count(1) from " + tableName;
+        return baseSql + whereCondition.getWhereSql();
     }
 
     /**
@@ -106,8 +103,8 @@ public class QueryCondition {
      * @return sql
      */
     public String getSimpleSql() {
-        String baseSql = "select * from " + tableName + " where 1=1";
-        return baseSql + buildSqlByQueryList() + buildSortSql();
+        String baseSql = "select * from " + tableName;
+        return baseSql + whereCondition.getWhereSql() + buildSortSql();
     }
 
     /**
@@ -125,15 +122,12 @@ public class QueryCondition {
      * @return map集合
      */
     public Map<String, Object> getParams() {
-        Map<String, Object> conditions = new HashMap<>();
-        queryList.forEach(query -> {
-            conditions.putAll(query.getQueryBuilder().buildConditions(query.getColumName(), query.getValue()));
-        });
+        Map<String, Object> whereParams = whereCondition.getWhereParams();
         if (limitStartRows != null && limitPageSize != null) {
-            conditions.put(SqlBuilderUtils.START_ROWS, limitStartRows);
-            conditions.put(SqlBuilderUtils.PAGE_SIZE, limitPageSize);
+            whereParams.put(SqlBuilderUtils.START_ROWS, limitStartRows);
+            whereParams.put(SqlBuilderUtils.PAGE_SIZE, limitPageSize);
         }
-        return conditions;
+        return whereParams;
     }
 
     public Integer getLimitStartRows() {
@@ -142,19 +136,6 @@ public class QueryCondition {
 
     public Integer getLimitPageSize() {
         return limitPageSize;
-    }
-
-    /**
-     * 通过queryList来生成sql
-     *
-     * @return sql
-     */
-    private String buildSqlByQueryList() {
-        StringBuilder sb = new StringBuilder();
-        queryList.forEach(query -> {
-            sb.append(query.getQueryBuilder().buildSql(query.getColumName(), query.getValue()));
-        });
-        return sb.toString();
     }
 
     /**

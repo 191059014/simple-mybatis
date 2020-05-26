@@ -1,15 +1,15 @@
 package com.hb.mybatis.helper;
 
 /**
- * 单个查询信息
+ * 单个where条件
  *
  * @author Mr.huang
  * @since 2020/5/8 11:29
  */
-public class SingleQuery {
+public class SingleWhereCondition {
 
     // 操作类型
-    private QueryBuilder queryBuilder;
+    private SingleWhereBuilder singleWhereBuilder;
 
     // 字段名
     private String columName;
@@ -17,14 +17,14 @@ public class SingleQuery {
     // 字段值
     private Object value;
 
-    public SingleQuery(QueryBuilder queryBuilder, String columName, Object value) {
-        this.queryBuilder = queryBuilder;
+    public SingleWhereCondition(SingleWhereBuilder singleWhereBuilder, String columName, Object value) {
+        this.singleWhereBuilder = singleWhereBuilder;
         this.columName = columName;
         this.value = value;
     }
 
-    public QueryBuilder getQueryBuilder() {
-        return queryBuilder;
+    public SingleWhereBuilder getSingleWhereBuilder() {
+        return singleWhereBuilder;
     }
 
     public String getColumName() {

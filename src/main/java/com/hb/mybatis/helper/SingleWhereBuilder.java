@@ -8,7 +8,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/8 11:12
  */
-public interface QueryBuilder {
+public interface SingleWhereBuilder {
 
     /**
      * 构建sql

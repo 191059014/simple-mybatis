@@ -60,11 +60,16 @@ public class PagesResult<T> {
 
     @Override
     public String toString() {
-        return "PagesResult{" +
-                "data=" + data +
-                ", count=" + count +
-                ", startRows=" + startRows +
-                ", pageSize=" + pageSize +
-                '}';
+        return "{"
+                + "\"data\":"
+                + data
+                + ",\"count\":"
+                + count
+                + ",\"startRows\":"
+                + startRows
+                + ",\"pageSize\":"
+                + pageSize
+                + "}";
     }
+
 }

@@ -1,5 +1,8 @@
 package com.hb.mybatis.util;
 
+import com.hb.mybatis.annotation.Table;
+import com.hb.unic.util.tool.Assert;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +68,9 @@ public class SqlBuilderUtils {
     // 字符串连接
     public static final String CONCAT = "concat";
 
+    // where语句
+    public static final String WHERE_TRUE = " where 1=1 ";
+
     /**
      * 组装条件集合
      *
@@ -96,6 +102,21 @@ public class SqlBuilderUtils {
      */
     public static String createSingleColumnSql(String paramName) {
         return DOLLAR_SYMBOL + LEFT_MIDDLE_BRACKET + COLUMS_NAME + DOT + paramName + RIGHT_MIDDLE_BRACKET;
+    }
+
+    /**
+     * 根据实体类获取表名
+     *
+     * @param entityClass 实体类
+     * @param <T>         实体类类型
+     * @return 表名
+     */
+    public static <T> String getTableName(Class<T> entityClass) {
+        Table entityClassAnnotation = entityClass.getAnnotation(Table.class);
+        Assert.assertNotNull(entityClassAnnotation, "cannot get table name from " + entityClass);
+        String tableName = entityClassAnnotation.value();
+        Assert.assertNotEmpty(tableName, "cannot get table name from " + entityClass);
+        return tableName;
     }
 
 }
