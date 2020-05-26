@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/8 11:14
  */
-public enum SingleWhereType implements SingleWhereBuilder {
+public enum QueryType implements SingleWhereBuilder {
 
     // 等于
     EQUALS(" = ", "") {
@@ -163,7 +163,7 @@ public enum SingleWhereType implements SingleWhereBuilder {
     // 操作符号后缀
     private String symbolSuffix;
 
-    SingleWhereType(String symbolPrefix, String symbolSuffix) {
+    QueryType(String symbolPrefix, String symbolSuffix) {
         this.symbolPrefix = symbolPrefix;
         this.symbolSuffix = symbolSuffix;
     }

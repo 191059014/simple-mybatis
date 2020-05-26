@@ -9,7 +9,7 @@
     </insert>
 
     <!-- 选择性更新 -->
-    <update id="updateSelectiveByPrimaryKey">
+    <update id="updateBySelective">
         ${sqlStatement}
     </update>
 

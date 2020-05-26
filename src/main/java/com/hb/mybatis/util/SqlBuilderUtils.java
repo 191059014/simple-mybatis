@@ -69,7 +69,7 @@ public class SqlBuilderUtils {
     public static final String CONCAT = "concat";
 
     // where语句
-    public static final String WHERE_TRUE = " where 1=1 ";
+    public static final String WHERE_TRUE = " where 1=1";
 
     /**
      * 组装条件集合
@@ -85,7 +85,7 @@ public class SqlBuilderUtils {
     }
 
     /**
-     * 生成${params.paramName}字符串
+     * 生成#{params.paramName}字符串
      *
      * @param paramName 参数名
      * @return 字符串
@@ -95,7 +95,7 @@ public class SqlBuilderUtils {
     }
 
     /**
-     * 生成${cloumns.paramName}字符串
+     * 生成#{cloumns.paramName}字符串
      *
      * @param paramName 参数名
      * @return 字符串

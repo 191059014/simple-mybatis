@@ -49,7 +49,7 @@ public interface BaseMapper {
      * @param params       条件集合
      * @return 更新的条数
      */
-    int updateSelectiveByPrimaryKey(@Param("sqlStatement") String sqlStatement, @Param("columns") Map<String, Object> cloumns, @Param("params") Map<String, Object> params);
+    int updateBySelective(@Param("sqlStatement") String sqlStatement, @Param("columns") Map<String, Object> cloumns, @Param("params") Map<String, Object> params);
 
     /**
      * 选择性删除

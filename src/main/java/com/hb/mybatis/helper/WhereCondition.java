@@ -1,6 +1,7 @@
 package com.hb.mybatis.helper;
 
 import com.hb.mybatis.util.SqlBuilderUtils;
+import com.hb.unic.util.util.ReflectUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,17 @@ public class WhereCondition {
     }
 
     /**
+     * 通过实体类添加条件
+     *
+     * @return WhereCondition
+     */
+    public <T> WhereCondition analysisEntityCondition(T t) {
+        Map<String, Object> allFields = ReflectUtils.getAllFields(t);
+        allFields.forEach((key, value) -> addCondition(QueryType.EQUALS, key, value));
+        return this;
+    }
+
+    /**
      * 添加条件
      *
      * @param singleWhereBuilder 操作类型
@@ -38,7 +50,7 @@ public class WhereCondition {
      * @return QueryCondition
      */
     public WhereCondition addCondition(SingleWhereBuilder singleWhereBuilder, String columnName, Object value) {
-        if (value != null) {
+        if (value != null && !"".equals(value.toString())) {
             this.whereConditionList.add(new SingleWhereCondition(singleWhereBuilder, columnName, value));
         }
         return this;

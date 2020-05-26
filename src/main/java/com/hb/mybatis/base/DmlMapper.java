@@ -82,7 +82,7 @@ public class DmlMapper {
     }
 
     /**
-     * 自定义sql语句动态查询，要求写全sql
+     * 自定义sql语句动态查询，要求写全where前面的sql
      *
      * @param sqlStatementBeforeWhere where前面的sql语句
      * @param whereCondition          where条件
@@ -118,7 +118,7 @@ public class DmlMapper {
         Assert.assertTrueThrows(whereCondition.isEmpty(), "updateBySelective: where conditions cannot empty");
         Map<String, Object> property = ReflectUtils.getAllFields(entity);
         String sqlStatement = UpdateHelper.buildUpdateSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property, whereCondition);
-        return baseMapper.updateSelectiveByPrimaryKey(sqlStatement, property, whereCondition.getWhereParams());
+        return baseMapper.updateBySelective(sqlStatement, property, whereCondition.getWhereParams());
     }
 
     /**

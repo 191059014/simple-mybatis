@@ -1,6 +1,7 @@
 package com.hb.mybatis.helper;
 
 import com.hb.mybatis.util.SqlBuilderUtils;
+import com.hb.unic.util.util.ReflectUtils;
 
 import java.util.Map;
 
@@ -49,6 +50,18 @@ public class QueryCondition {
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
+
+    /**
+     * 通过实体类添加条件
+     *
+     * @return WhereCondition
+     */
+    public <T> QueryCondition analysisEntityCondition(T t) {
+        Map<String, Object> allFields = ReflectUtils.getAllFields(t);
+        allFields.forEach((key, value) -> addCondition(QueryType.EQUALS, key, value));
+        return this;
+    }
+
 
     /**
      * 添加条件
