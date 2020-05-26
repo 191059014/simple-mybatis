@@ -1,6 +1,5 @@
 package com.hb.mybatis.base;
 
-import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.helper.DeleteHelper;
