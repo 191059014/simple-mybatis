@@ -25,6 +25,23 @@ int insertBySelective(T entity)
 int updateBySelective(T entity, WhereCondition whereCondition)
 int deleteBySelective(Class<T> entityClass, WhereCondition whereCondition)
 ```
+## 实体类加@Table，@Column注解，配置表名和字段映射
+```$xslt
+/**
+ * 用户表
+ */
+@Table("t_user")
+public class User {
+
+    // 用户名
+    @Column("user_name")
+    private String userName;
+
+    // 密码
+    private String password;
+
+}
+```
 ## 示例
 ```
 QueryCondition queryCondition = QueryCondition.build()
