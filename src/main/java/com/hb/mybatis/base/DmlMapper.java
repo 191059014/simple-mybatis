@@ -1,5 +1,8 @@
 package com.hb.mybatis.base;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.helper.DeleteHelper;
 import com.hb.mybatis.helper.InsertHelper;
 import com.hb.mybatis.helper.QueryCondition;
@@ -16,8 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ========== dml操作数据库类 ==========
@@ -33,6 +39,11 @@ public class DmlMapper {
      * the constant logger
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(DmlMapper.class);
+
+    /**
+     * 实体类名和数据库列名映射的缓存
+     */
+    private final Map<String, Map<String, String>> fieldColumnMappings = new ConcurrentHashMap(64);
 
     /**
      * mapper基类
@@ -51,6 +62,7 @@ public class DmlMapper {
     public <T> List<T> dynamicSelect(Class<T> entityClass, QueryCondition query) {
         query.setTableName(SqlBuilderUtils.getTableName(entityClass));
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
+        queryResult.forEach((map -> this.handleFieldColumnMapping(entityClass, map, false)));
         return CloneUtils.maps2Beans(queryResult, entityClass);
     }
 
@@ -77,6 +89,7 @@ public class DmlMapper {
         query.setTableName(SqlBuilderUtils.getTableName(entityClass));
         int count = baseMapper.selectCount(query.getCountSql(), query.getParams());
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(), query.getParams());
+        queryResult.forEach((map -> this.handleFieldColumnMapping(entityClass, map, false)));
         List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
         return new PagesResult<>(tList, count, query.getLimitStartRows(), query.getLimitPageSize());
     }
@@ -101,7 +114,8 @@ public class DmlMapper {
      */
     public <T> int insertBySelective(T entity) {
         Assert.assertNotNull(entity, "insertBySelective: entity cannot be null");
-        Map<String, Object> property = ReflectUtils.getAllFields(entity);
+        Map<String, Object> property = ReflectUtils.getAllFieldsExcludeStatic(entity);
+        this.handleFieldColumnMapping(entity.getClass(), property, true);
         String sqlStatement = InsertHelper.buildInsertSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property);
         return baseMapper.insertSelective(sqlStatement, property);
     }
@@ -116,7 +130,8 @@ public class DmlMapper {
     public <T> int updateBySelective(T entity, WhereCondition whereCondition) {
         Assert.assertNotNull(entity, "updateBySelective: entity cannot be null");
         Assert.assertTrueThrows(whereCondition.isEmpty(), "updateBySelective: where conditions cannot empty");
-        Map<String, Object> property = ReflectUtils.getAllFields(entity);
+        Map<String, Object> property = ReflectUtils.getAllFieldsExcludeStatic(entity);
+        this.handleFieldColumnMapping(entity.getClass(), property, true);
         String sqlStatement = UpdateHelper.buildUpdateSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property, whereCondition);
         return baseMapper.updateBySelective(sqlStatement, property, whereCondition.getWhereParams());
     }
@@ -132,6 +147,50 @@ public class DmlMapper {
         Assert.assertTrueThrows(whereCondition.isEmpty(), "deleteBySelective: where conditions cannot empty");
         String sqlStatement = DeleteHelper.buildDeleteSelectiveSql(SqlBuilderUtils.getTableName(entityClass), whereCondition);
         return baseMapper.deleteBySelective(sqlStatement, whereCondition.getWhereParams());
+    }
+
+    /**
+     * 填充实体类字段名和数据库字段的映射
+     *
+     * @param entityClass     实体类
+     * @param waitTransferMap 等待被转换的map集合
+     * @param getColumn       是获取表中的列名，还是获取实体类字段名
+     * @param <T>             实体类类型
+     */
+    private <T> void handleFieldColumnMapping(Class<T> entityClass, Map<String, Object> waitTransferMap, boolean getColumn) {
+        synchronized (this.fieldColumnMappings) {
+            Map<String, String> fieldColumnMapping = this.fieldColumnMappings.get(entityClass.getName());
+            if (fieldColumnMapping == null) {
+                fieldColumnMapping = HashBiMap.create();
+                Field[] allFields = ReflectUtils.getAllFields(entityClass);
+                for (Field field : allFields) {
+                    String columnName = field.getName();
+                    Column column = field.getAnnotation(Column.class);
+                    if (column != null) {
+                        columnName = column.value();
+                    }
+                    fieldColumnMapping.put(field.getName(), columnName);
+                }
+                this.fieldColumnMappings.put(entityClass.getName(), fieldColumnMapping);
+            }
+            Map<String, Object> columnMap = new HashMap<>();
+            for (Map.Entry<String, Object> entry : waitTransferMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                String finalKey = fieldColumnMapping.get(key);
+                if (!getColumn) {
+                    for (Map.Entry<String, String> fieldColumnEntry : fieldColumnMapping.entrySet()) {
+                        if (key.equals(fieldColumnEntry.getValue())) {
+                            finalKey = fieldColumnEntry.getKey();
+                            break;
+                        }
+                    }
+                }
+                columnMap.put(finalKey, value);
+            }
+            waitTransferMap.clear();
+            waitTransferMap.putAll(columnMap);
+        }
     }
 
 }
