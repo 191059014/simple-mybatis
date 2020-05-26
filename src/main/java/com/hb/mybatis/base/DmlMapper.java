@@ -157,39 +157,42 @@ public class DmlMapper {
      * @param <T>             实体类类型
      */
     private <T> void handleFieldColumnMapping(Class<T> entityClass, Map<String, Object> waitTransferMap, boolean getColumn) {
-        synchronized (this.fieldColumnMappings) {
-            Map<String, String> fieldColumnMapping = this.fieldColumnMappings.get(entityClass.getName());
-            if (fieldColumnMapping == null) {
-                fieldColumnMapping = HashBiMap.create();
-                Field[] allFields = ReflectUtils.getAllFields(entityClass);
-                for (Field field : allFields) {
-                    String columnName = field.getName();
-                    Column column = field.getAnnotation(Column.class);
-                    if (column != null) {
-                        columnName = column.value();
-                    }
-                    fieldColumnMapping.put(field.getName(), columnName);
-                }
-                this.fieldColumnMappings.put(entityClass.getName(), fieldColumnMapping);
-            }
-            Map<String, Object> columnMap = new HashMap<>();
-            for (Map.Entry<String, Object> entry : waitTransferMap.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                String finalKey = fieldColumnMapping.get(key);
-                if (!getColumn) {
-                    for (Map.Entry<String, String> fieldColumnEntry : fieldColumnMapping.entrySet()) {
-                        if (key.equals(fieldColumnEntry.getValue())) {
-                            finalKey = fieldColumnEntry.getKey();
-                            break;
+        Map<String, String> fieldColumnMapping = this.fieldColumnMappings.get(entityClass.getName());
+        if (fieldColumnMapping == null) { // 避免不必要的同步
+            synchronized (this.fieldColumnMappings) {
+                fieldColumnMapping = this.fieldColumnMappings.get(entityClass.getName());
+                if (fieldColumnMapping == null) { // 为空的时候，才会去利用反射获取实体类字段和数据库表列名的对应关系
+                    fieldColumnMapping = HashBiMap.create();
+                    Field[] allFields = ReflectUtils.getAllFields(entityClass);
+                    for (Field field : allFields) {
+                        String columnName = field.getName();
+                        Column column = field.getAnnotation(Column.class);
+                        if (column != null) {
+                            columnName = column.value();
                         }
+                        fieldColumnMapping.put(field.getName(), columnName);
+                    }
+                    this.fieldColumnMappings.put(entityClass.getName(), fieldColumnMapping);
+                }
+            }
+        }
+        Map<String, Object> columnMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : waitTransferMap.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            String finalKey = fieldColumnMapping.get(key);
+            if (!getColumn) {
+                for (Map.Entry<String, String> fieldColumnEntry : fieldColumnMapping.entrySet()) {
+                    if (key.equals(fieldColumnEntry.getValue())) {
+                        finalKey = fieldColumnEntry.getKey();
+                        break;
                     }
                 }
-                columnMap.put(finalKey, value);
             }
-            waitTransferMap.clear();
-            waitTransferMap.putAll(columnMap);
+            columnMap.put(finalKey, value);
         }
+        waitTransferMap.clear();
+        waitTransferMap.putAll(columnMap);
     }
 
 }
