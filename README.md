@@ -78,3 +78,5 @@ WhereCondition whereCondition = WhereCondition.build()
                                     .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
 int deleteRows = dmlMapper.deleteBySelective(CouponConfigDO.class, whereCondition);
 ```
+## 其他
+更多实用的方法、小工具，请重点查看QueryCondition，QueryType，WhereCondition，SqlBuilderUtils等类。
