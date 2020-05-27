@@ -26,6 +26,7 @@ int updateBySelective(T entity, WhereCondition whereCondition)
 int deleteBySelective(Class<T> entityClass, WhereCondition whereCondition)
 ```
 ## 实体类加@Table，@Column注解，配置表名和字段映射
+@Table注解是必须的；@Column注解非必须，如果数据库表字段和实体类名称一样，则不需要配置；
 ```$xslt
 /**
  * 用户表

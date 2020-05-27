@@ -1,6 +1,5 @@
 package com.hb.mybatis.base;
 
-import com.google.common.collect.HashBiMap;
 import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.helper.DeleteHelper;
 import com.hb.mybatis.helper.InsertHelper;
@@ -42,7 +41,7 @@ public class DmlMapper {
     /**
      * 实体类名和数据库列名映射的缓存
      */
-    private final Map<String, Map<String, String>> fieldColumnMappings = new ConcurrentHashMap(64);
+    private final Map<String, Map<String, String>> fieldColumnMappingsCache = new ConcurrentHashMap(64);
 
     /**
      * mapper基类
@@ -157,32 +156,27 @@ public class DmlMapper {
      * @param <T>             实体类类型
      */
     private <T> void handleFieldColumnMapping(Class<T> entityClass, Map<String, Object> waitTransferMap, boolean getColumn) {
-        Map<String, String> fieldColumnMapping = this.fieldColumnMappings.get(entityClass.getName());
-        if (fieldColumnMapping == null) { // 避免不必要的同步
-            synchronized (this.fieldColumnMappings) {
-                fieldColumnMapping = this.fieldColumnMappings.get(entityClass.getName());
-                if (fieldColumnMapping == null) { // 为空的时候，才会去利用反射获取实体类字段和数据库表列名的对应关系
-                    fieldColumnMapping = HashBiMap.create();
-                    Field[] allFields = ReflectUtils.getAllFields(entityClass);
-                    for (Field field : allFields) {
-                        String columnName = field.getName();
-                        Column column = field.getAnnotation(Column.class);
-                        if (column != null) {
-                            columnName = column.value();
-                        }
-                        fieldColumnMapping.put(field.getName(), columnName);
-                    }
-                    this.fieldColumnMappings.put(entityClass.getName(), fieldColumnMapping);
+        Map<String, String> fieldColumnMappings = this.fieldColumnMappingsCache.get(entityClass.getName());
+        if (fieldColumnMappings == null) {
+            fieldColumnMappings = new HashMap<>(16);
+            Field[] allFields = ReflectUtils.getAllFields(entityClass);
+            for (Field field : allFields) {
+                String columnName = field.getName();
+                Column column = field.getAnnotation(Column.class);
+                if (column != null) {
+                    columnName = column.value();
                 }
+                fieldColumnMappings.put(field.getName(), columnName);
             }
+            this.fieldColumnMappingsCache.put(entityClass.getName(), fieldColumnMappings);
         }
         Map<String, Object> columnMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : waitTransferMap.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
-            String finalKey = fieldColumnMapping.get(key);
+            String finalKey = fieldColumnMappings.get(key);
             if (!getColumn) {
-                for (Map.Entry<String, String> fieldColumnEntry : fieldColumnMapping.entrySet()) {
+                for (Map.Entry<String, String> fieldColumnEntry : fieldColumnMappings.entrySet()) {
                     if (key.equals(fieldColumnEntry.getValue())) {
                         finalKey = fieldColumnEntry.getKey();
                         break;
