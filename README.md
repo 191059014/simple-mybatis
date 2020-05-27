@@ -75,6 +75,6 @@ int updateRows = dmlMapper.updateBySelective(user, whereCondition);
 - 删除
 ```
 WhereCondition whereCondition = WhereCondition.build()
-                                            .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
+                                    .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
 int updateRows = dmlMapper.deleteBySelective(CouponConfigDO.class, whereCondition);
 ```
