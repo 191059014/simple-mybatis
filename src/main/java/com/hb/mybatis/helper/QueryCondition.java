@@ -57,7 +57,7 @@ public class QueryCondition {
      * @return WhereCondition
      */
     public <T> QueryCondition analysisEntityCondition(T t) {
-        Map<String, Object> allFields = ReflectUtils.getAllFieldsExcludeStatic(t);
+        Map<String, Object> allFields = ReflectUtils.getAllFieldsExcludeStaticAndFinal(t);
         allFields.forEach((key, value) -> addCondition(QueryType.EQUALS, key, value));
         return this;
     }

@@ -19,7 +19,7 @@ DmlMapper对象方法如下:
 ```
 List<T> dynamicSelect(Class<T> entityClass, QueryCondition query)
 int selectCount(Class<T> entityClass, QueryCondition query)
-PagesResult<T> selectPages(Class<T> entityClass, QueryCondition query)
+PPagesResult<T> selectPages(Class<T> entityClass, QueryCondition query)
 List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, WhereCondition whereCondition)
 int insertBySelective(T entity)
 int updateBySelective(T entity, WhereCondition whereCondition)
@@ -27,7 +27,6 @@ int deleteBySelective(Class<T> entityClass, WhereCondition whereCondition)
 ```
 ## 实体类加@Table，@Column注解，配置表名和字段映射
 @Table注解是必须的，要设置表名；  
-@Column注解非必须，如果数据库表字段和实体类名称一样，则不需要配置；
 ```$xslt
 /**
  * 用户表
@@ -36,13 +35,13 @@ int deleteBySelective(Class<T> entityClass, WhereCondition whereCondition)
 public class User {
 
     // 用户名
-    @Column("user_name")
     private String userName;
 
     // 密码
     private String password;
 
 }
+注意：项目默认实体类和数据库表字段是驼峰映射，若要取消驼峰映射，则增加配置simple.mybatis.hump_mapping=false
 ```
 ## 示例
 - 查询
@@ -80,3 +79,4 @@ int deleteRows = dmlMapper.deleteBySelective(CouponConfigDO.class, whereConditio
 ```
 ## 其他
 更多实用的方法、小工具，请重点查看QueryCondition，QueryType，WhereCondition，SqlBuilderUtils等类。
+

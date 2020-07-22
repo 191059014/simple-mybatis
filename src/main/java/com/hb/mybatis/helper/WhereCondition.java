@@ -36,7 +36,7 @@ public class WhereCondition {
      * @return WhereCondition
      */
     public <T> WhereCondition analysisEntityCondition(T t) {
-        Map<String, Object> allFields = ReflectUtils.getAllFieldsExcludeStatic(t);
+        Map<String, Object> allFields = ReflectUtils.getAllFieldsExcludeStaticAndFinal(t);
         allFields.forEach((key, value) -> addCondition(QueryType.EQUALS, key, value));
         return this;
     }

@@ -11,14 +11,15 @@ import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PagesResult;
 import com.hb.mybatis.util.SqlBuilderUtils;
 import com.hb.unic.util.tool.Assert;
-import com.hb.unic.util.util.JsonUtils;
-import com.hb.unic.util.util.ReflectUtils;
+import com.hb.unic.util.util.CloneUtils;
 import com.hb.unic.util.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,11 +55,10 @@ public class DmlMapper {
     public <T> List<T> dynamicSelect(Class<T> entityClass, QueryCondition query) {
         query.setTableName(SqlBuilderUtils.getTableName(entityClass));
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
-        String json = JsonUtils.toJson(queryResult);
         if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
-            json = StringUtils.underline2Hump(json);
+            convertToHumpMapList(queryResult);
         }
-        return JsonUtils.toList(json, entityClass);
+        return CloneUtils.maps2Beans(queryResult, entityClass);
     }
 
     /**
@@ -84,11 +84,10 @@ public class DmlMapper {
         query.setTableName(SqlBuilderUtils.getTableName(entityClass));
         int count = baseMapper.selectCount(query.getCountSql(), query.getParams());
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(), query.getParams());
-        String json = JsonUtils.toJson(queryResult);
         if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
-            json = StringUtils.underline2Hump(json);
+            convertToHumpMapList(queryResult);
         }
-        List<T> tList = JsonUtils.toList(json, entityClass);
+        List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
         return new PagesResult<>(tList, count, query.getLimitStartRows(), query.getLimitPageSize());
     }
 
@@ -112,13 +111,9 @@ public class DmlMapper {
      */
     public <T> int insertBySelective(T entity) {
         Assert.assertNotNull(entity, "insertBySelective: entity cannot be null");
-        Map<String, Object> property = ReflectUtils.getAllFieldsExcludeStatic(entity);
+        Map<String, Object> property = CloneUtils.bean2Map(entity);
         if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
-            String json = JsonUtils.toJson(property);
-            json = StringUtils.underline2Hump(json);
-            Map<String, Object> humpProperty = JsonUtils.toMap(json, Object.class);
-            property.clear();
-            property.putAll(humpProperty);
+            convertToUnderlineMap(property);
         }
         String sqlStatement = InsertHelper.buildInsertSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property);
         return baseMapper.insertSelective(sqlStatement, property);
@@ -134,13 +129,9 @@ public class DmlMapper {
     public <T> int updateBySelective(T entity, WhereCondition whereCondition) {
         Assert.assertNotNull(entity, "updateBySelective: entity cannot be null");
         Assert.assertTrueThrows(whereCondition.isEmpty(), "updateBySelective: where conditions cannot empty");
-        Map<String, Object> property = ReflectUtils.getAllFieldsExcludeStatic(entity);
+        Map<String, Object> property = CloneUtils.bean2Map(entity);
         if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
-            String json = JsonUtils.toJson(property);
-            json = StringUtils.underline2Hump(json);
-            Map<String, Object> humpProperty = JsonUtils.toMap(json, Object.class);
-            property.clear();
-            property.putAll(humpProperty);
+            convertToUnderlineMap(property);
         }
         String sqlStatement = UpdateHelper.buildUpdateSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property, whereCondition);
         return baseMapper.updateBySelective(sqlStatement, property, whereCondition.getWhereParams());
@@ -157,6 +148,44 @@ public class DmlMapper {
         Assert.assertTrueThrows(whereCondition.isEmpty(), "deleteBySelective: where conditions cannot empty");
         String sqlStatement = DeleteHelper.buildDeleteSelectiveSql(SqlBuilderUtils.getTableName(entityClass), whereCondition);
         return baseMapper.deleteBySelective(sqlStatement, whereCondition.getWhereParams());
+    }
+
+    /**
+     * 把map的key转换为驼峰形式的key
+     *
+     * @param property 待转换的map
+     */
+    private void convertToUnderlineMap(Map<String, Object> property) {
+        if (property == null || property.isEmpty()) {
+            return;
+        }
+        Map<String, Object> humpProperty = new HashMap<>();
+        property.forEach((key, value) -> {
+            humpProperty.put(StringUtils.hump2Underline(key), value);
+        });
+        property.clear();
+        property.putAll(humpProperty);
+    }
+
+    /**
+     * 把list中map中的key为下划线转换为驼峰
+     *
+     * @param list 待转换的list
+     */
+    private void convertToHumpMapList(List<Map<String, Object>> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        List<Map<String, Object>> humpMapList = new ArrayList<>();
+        list.forEach(map -> {
+            Map<String, Object> humpMap = new HashMap<>();
+            map.forEach((key, value) -> {
+                humpMap.put(StringUtils.underline2Hump(key), value);
+            });
+            humpMapList.add(humpMap);
+        });
+        list.clear();
+        list.addAll(humpMapList);
     }
 
 }
