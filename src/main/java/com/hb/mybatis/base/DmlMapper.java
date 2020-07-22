@@ -1,6 +1,7 @@
 package com.hb.mybatis.base;
 
-import com.hb.mybatis.annotation.Column;
+import com.hb.mybatis.SimpleMybatisContext;
+import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.helper.DeleteHelper;
 import com.hb.mybatis.helper.InsertHelper;
 import com.hb.mybatis.helper.QueryCondition;
@@ -10,18 +11,16 @@ import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PagesResult;
 import com.hb.mybatis.util.SqlBuilderUtils;
 import com.hb.unic.util.tool.Assert;
-import com.hb.unic.util.util.CloneUtils;
+import com.hb.unic.util.util.JsonUtils;
 import com.hb.unic.util.util.ReflectUtils;
+import com.hb.unic.util.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ========== dml操作数据库类 ==========
@@ -37,11 +36,6 @@ public class DmlMapper {
      * the constant logger
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(DmlMapper.class);
-
-    /**
-     * 实体类名和数据库列名映射的缓存
-     */
-    private final Map<String, Map<String, String>> fieldColumnMappingsCache = new ConcurrentHashMap(64);
 
     /**
      * mapper基类
@@ -60,8 +54,11 @@ public class DmlMapper {
     public <T> List<T> dynamicSelect(Class<T> entityClass, QueryCondition query) {
         query.setTableName(SqlBuilderUtils.getTableName(entityClass));
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
-        queryResult.forEach((map -> this.handleFieldColumnMapping(entityClass, map, false)));
-        return CloneUtils.maps2Beans(queryResult, entityClass);
+        String json = JsonUtils.toJson(queryResult);
+        if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
+            json = StringUtils.underline2Hump(json);
+        }
+        return JsonUtils.toList(json, entityClass);
     }
 
     /**
@@ -87,8 +84,11 @@ public class DmlMapper {
         query.setTableName(SqlBuilderUtils.getTableName(entityClass));
         int count = baseMapper.selectCount(query.getCountSql(), query.getParams());
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(), query.getParams());
-        queryResult.forEach((map -> this.handleFieldColumnMapping(entityClass, map, false)));
-        List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
+        String json = JsonUtils.toJson(queryResult);
+        if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
+            json = StringUtils.underline2Hump(json);
+        }
+        List<T> tList = JsonUtils.toList(json, entityClass);
         return new PagesResult<>(tList, count, query.getLimitStartRows(), query.getLimitPageSize());
     }
 
@@ -113,7 +113,13 @@ public class DmlMapper {
     public <T> int insertBySelective(T entity) {
         Assert.assertNotNull(entity, "insertBySelective: entity cannot be null");
         Map<String, Object> property = ReflectUtils.getAllFieldsExcludeStatic(entity);
-        this.handleFieldColumnMapping(entity.getClass(), property, true);
+        if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
+            String json = JsonUtils.toJson(property);
+            json = StringUtils.underline2Hump(json);
+            Map<String, Object> humpProperty = JsonUtils.toMap(json, Object.class);
+            property.clear();
+            property.putAll(humpProperty);
+        }
         String sqlStatement = InsertHelper.buildInsertSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property);
         return baseMapper.insertSelective(sqlStatement, property);
     }
@@ -129,7 +135,13 @@ public class DmlMapper {
         Assert.assertNotNull(entity, "updateBySelective: entity cannot be null");
         Assert.assertTrueThrows(whereCondition.isEmpty(), "updateBySelective: where conditions cannot empty");
         Map<String, Object> property = ReflectUtils.getAllFieldsExcludeStatic(entity);
-        this.handleFieldColumnMapping(entity.getClass(), property, true);
+        if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
+            String json = JsonUtils.toJson(property);
+            json = StringUtils.underline2Hump(json);
+            Map<String, Object> humpProperty = JsonUtils.toMap(json, Object.class);
+            property.clear();
+            property.putAll(humpProperty);
+        }
         String sqlStatement = UpdateHelper.buildUpdateSelectiveSql(SqlBuilderUtils.getTableName(entity.getClass()), property, whereCondition);
         return baseMapper.updateBySelective(sqlStatement, property, whereCondition.getWhereParams());
     }
@@ -145,48 +157,6 @@ public class DmlMapper {
         Assert.assertTrueThrows(whereCondition.isEmpty(), "deleteBySelective: where conditions cannot empty");
         String sqlStatement = DeleteHelper.buildDeleteSelectiveSql(SqlBuilderUtils.getTableName(entityClass), whereCondition);
         return baseMapper.deleteBySelective(sqlStatement, whereCondition.getWhereParams());
-    }
-
-    /**
-     * 填充实体类字段名和数据库字段的映射
-     *
-     * @param entityClass     实体类
-     * @param waitTransferMap 等待被转换的map集合
-     * @param getColumn       是获取表中的列名，还是获取实体类字段名
-     * @param <T>             实体类类型
-     */
-    private <T> void handleFieldColumnMapping(Class<T> entityClass, Map<String, Object> waitTransferMap, boolean getColumn) {
-        Map<String, String> fieldColumnMappings = this.fieldColumnMappingsCache.get(entityClass.getName());
-        if (fieldColumnMappings == null) {
-            fieldColumnMappings = new HashMap<>(16);
-            Field[] allFields = ReflectUtils.getAllFields(entityClass);
-            for (Field field : allFields) {
-                String columnName = field.getName();
-                Column column = field.getAnnotation(Column.class);
-                if (column != null) {
-                    columnName = column.value();
-                }
-                fieldColumnMappings.put(field.getName(), columnName);
-            }
-            this.fieldColumnMappingsCache.put(entityClass.getName(), fieldColumnMappings);
-        }
-        Map<String, Object> columnMap = new HashMap<>();
-        for (Map.Entry<String, Object> entry : waitTransferMap.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            String finalKey = fieldColumnMappings.get(key);
-            if (!getColumn) {
-                for (Map.Entry<String, String> fieldColumnEntry : fieldColumnMappings.entrySet()) {
-                    if (key.equals(fieldColumnEntry.getValue())) {
-                        finalKey = fieldColumnEntry.getKey();
-                        break;
-                    }
-                }
-            }
-            columnMap.put(finalKey, value);
-        }
-        waitTransferMap.clear();
-        waitTransferMap.putAll(columnMap);
     }
 
 }
