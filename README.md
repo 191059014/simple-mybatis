@@ -61,7 +61,7 @@ PagesResult<List<User>> pageResult = dmlMapper.selectPages(User.class, queryCond
 User user = new User();
 user.setUserName("zhangsan");
 user.setPassword("123456");
-int updateRows = dmlMapper.insertBySelective(user);
+int addRows = dmlMapper.insertBySelective(user);
 ```
 - 修改
 ```
@@ -75,6 +75,8 @@ int updateRows = dmlMapper.updateBySelective(user, whereCondition);
 - 删除
 ```
 WhereCondition whereCondition = WhereCondition.build()
-                                            .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
-int updateRows = dmlMapper.deleteBySelective(CouponConfigDO.class, whereCondition);
+                                    .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
+int deleteRows = dmlMapper.deleteBySelective(CouponConfigDO.class, whereCondition);
 ```
+## 其他
+更多实用的方法、小工具，请重点查看QueryCondition，QueryType，WhereCondition，SqlBuilderUtils等类。
