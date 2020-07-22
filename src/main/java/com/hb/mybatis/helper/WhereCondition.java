@@ -1,7 +1,7 @@
 package com.hb.mybatis.helper;
 
 import com.hb.mybatis.util.SqlBuilderUtils;
-import com.hb.unic.util.util.ReflectUtils;
+import com.hb.unic.util.util.CloneUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class WhereCondition {
      * @return WhereCondition
      */
     public <T> WhereCondition analysisEntityCondition(T t) {
-        Map<String, Object> allFields = ReflectUtils.getAllFieldsExcludeStaticAndFinal(t);
+        Map<String, Object> allFields = CloneUtils.bean2Map(t);
         allFields.forEach((key, value) -> addCondition(QueryType.EQUALS, key, value));
         return this;
     }
