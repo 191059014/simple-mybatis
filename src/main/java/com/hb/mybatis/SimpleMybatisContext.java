@@ -39,7 +39,7 @@ public class SimpleMybatisContext implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         maps.put(Consts.HUMP_MAPPING, humpMapping);
-        LOGGER.info("SimpleMybatisContext load properties: {}", maps);
+        LOGGER.info("SimpleMybatisContext accept properties: {}", maps);
     }
 
     /**
