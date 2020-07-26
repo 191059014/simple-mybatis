@@ -1,6 +1,6 @@
-package com.hb.mybatis.helper;
+package com.hb.mybatis.sql;
 
-import com.hb.mybatis.util.SqlBuilderUtils;
+import com.hb.mybatis.helper.SqlBuilderHelper;
 
 import java.util.Map;
 
@@ -10,27 +10,27 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/7 17:02
  */
-public class UpdateHelper {
+public class Update {
 
     /**
      * 构建更新sql语句
      *
      * @param tableName      表名
      * @param property       字段集合
-     * @param whereCondition 条件集合
+     * @param where 条件集合
      * @return 更新sql语句
      */
-    public static String buildUpdateSelectiveSql(String tableName, Map<String, Object> property, WhereCondition whereCondition) {
+    public static String buildSelectiveSql(String tableName, Map<String, Object> property, Where where) {
         StringBuilder sb = new StringBuilder("update " + tableName + " set ");
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlBuilderUtils.EQUALS).append(SqlBuilderUtils.createSingleColumnSql(key)).append(SqlBuilderUtils.COMMA);
+                cloumSb.append(key).append(SqlBuilderHelper.EQUALS).append(SqlBuilderHelper.createSingleColumnSql(key)).append(SqlBuilderHelper.COMMA);
             }
         });
         // 去掉最后一个逗号
         String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1);
-        sb.append(cloumnSql).append(whereCondition.getWhereSql());
+        sb.append(cloumnSql).append(where.getWhereSql());
         return sb.toString();
     }
 

@@ -20,10 +20,10 @@ DmlMapper对象方法如下:
 List<T> dynamicSelect(Class<T> entityClass, QueryCondition query)
 int selectCount(Class<T> entityClass, QueryCondition query)
 PPagesResult<T> selectPages(Class<T> entityClass, QueryCondition query)
-List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, WhereCondition whereCondition)
+List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, WhereCondition where)
 int insertBySelective(T entity)
-int updateBySelective(T entity, WhereCondition whereCondition)
-int deleteBySelective(Class<T> entityClass, WhereCondition whereCondition)
+int updateBySelective(T entity, WhereCondition where)
+int deleteBySelective(Class<T> entityClass, WhereCondition where)
 ```
 ## 实体类加@Table，@Column注解，配置表名和字段映射
 @Table注解是必须的，要设置表名；  
@@ -67,15 +67,15 @@ int addRows = dmlMapper.insertBySelective(user);
 User user = new User();
 user.setUserName("zhangsan");
 user.setPassword("123456789");
-WhereCondition whereCondition = WhereCondition.build()
+WhereCondition where = WhereCondition.build()
                                     .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
-int updateRows = dmlMapper.updateBySelective(user, whereCondition);
+int updateRows = dmlMapper.updateBySelective(user, where);
 ```
 - 删除
 ```
-WhereCondition whereCondition = WhereCondition.build()
+WhereCondition where = WhereCondition.build()
                                     .addCondition(QueryType.EQUALS, "user_name", "zhangsan");
-int deleteRows = dmlMapper.deleteBySelective(CouponConfigDO.class, whereCondition);
+int deleteRows = dmlMapper.deleteBySelective(CouponConfigDO.class, where);
 ```
 ## 其他
 更多实用的方法、小工具，请重点查看QueryCondition，QueryType，WhereCondition，SqlBuilderUtils等类。

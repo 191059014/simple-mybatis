@@ -1,7 +1,5 @@
 package com.hb.mybatis.helper;
 
-import com.hb.mybatis.util.SqlBuilderUtils;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +16,12 @@ public enum QueryType implements SingleWhereBuilder {
     EQUALS(" = ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName);
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -31,12 +29,12 @@ public enum QueryType implements SingleWhereBuilder {
     NOT_EQUALS(" != ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName);
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -44,12 +42,12 @@ public enum QueryType implements SingleWhereBuilder {
     MAX_THAN(" > ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName);
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -57,12 +55,12 @@ public enum QueryType implements SingleWhereBuilder {
     MIN_THAN(" < ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName);
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -71,12 +69,12 @@ public enum QueryType implements SingleWhereBuilder {
     MAX_EQUALS_THAN(" >= ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName);
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -84,12 +82,12 @@ public enum QueryType implements SingleWhereBuilder {
     MIN_EQUALS_THAN(" <= ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName);
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -97,12 +95,12 @@ public enum QueryType implements SingleWhereBuilder {
     LIKE(" like ", "") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.CONCAT + SqlBuilderUtils.LEFT_SMALL_BRACKET + SqlBuilderUtils.createSingleParamSql(columnName) + SqlBuilderUtils.COMMA + SqlBuilderUtils.SINGLE_QUOTATION_MARK + SqlBuilderUtils.PERCENT + SqlBuilderUtils.SINGLE_QUOTATION_MARK + SqlBuilderUtils.RIGHT_SMALL_BRACKET;
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.CONCAT + SqlBuilderHelper.LEFT_SMALL_BRACKET + SqlBuilderHelper.createSingleParamSql(columnName) + SqlBuilderHelper.COMMA + SqlBuilderHelper.SINGLE_QUOTATION_MARK + SqlBuilderHelper.PERCENT + SqlBuilderHelper.SINGLE_QUOTATION_MARK + SqlBuilderHelper.RIGHT_SMALL_BRACKET;
         }
 
         @Override
         public Map<String, Object> buildConditions(String columnName, Object value) {
-            return SqlBuilderUtils.createSingleConditionMap(columnName, value);
+            return SqlBuilderHelper.createSingleConditionMap(columnName, value);
         }
 
     },
@@ -112,15 +110,15 @@ public enum QueryType implements SingleWhereBuilder {
         public String buildSql(String columnName, Object value) {
             StringBuilder sb = new StringBuilder();
             if (value instanceof List) {
-                sb.append(SqlBuilderUtils.AND).append(columnName).append(getSymbolPrefix()).append(SqlBuilderUtils.LEFT_SMALL_BRACKET);
+                sb.append(SqlBuilderHelper.AND).append(columnName).append(getSymbolPrefix()).append(SqlBuilderHelper.LEFT_SMALL_BRACKET);
                 List<Object> paramList = (List<Object>) value;
                 for (int i = 0; i < paramList.size(); i++) {
-                    sb.append(SqlBuilderUtils.createSingleParamSql(columnName + i));
+                    sb.append(SqlBuilderHelper.createSingleParamSql(columnName + i));
                     if (i != paramList.size() - 1) {
-                        sb.append(SqlBuilderUtils.COMMA);
+                        sb.append(SqlBuilderHelper.COMMA);
                     }
                 }
-                sb.append(SqlBuilderUtils.RIGHT_SMALL_BRACKET);
+                sb.append(SqlBuilderHelper.RIGHT_SMALL_BRACKET);
             }
             return sb.toString();
         }
@@ -131,7 +129,7 @@ public enum QueryType implements SingleWhereBuilder {
             if (value instanceof List) {
                 List<Object> paramList = (List<Object>) value;
                 for (int i = 0; i < paramList.size(); i++) {
-                    map.putAll(SqlBuilderUtils.createSingleConditionMap(columnName + i, paramList.get(i)));
+                    map.putAll(SqlBuilderHelper.createSingleConditionMap(columnName + i, paramList.get(i)));
                 }
             }
             return map;
@@ -142,7 +140,7 @@ public enum QueryType implements SingleWhereBuilder {
     BETWEEN_AND(" between ", " and ") {
         @Override
         public String buildSql(String columnName, Object value) {
-            return SqlBuilderUtils.AND + columnName + getSymbolPrefix() + SqlBuilderUtils.createSingleParamSql(columnName + 0) + getSymbolSuffix() + SqlBuilderUtils.createSingleParamSql(columnName + 1);
+            return SqlBuilderHelper.AND + columnName + getSymbolPrefix() + SqlBuilderHelper.createSingleParamSql(columnName + 0) + getSymbolSuffix() + SqlBuilderHelper.createSingleParamSql(columnName + 1);
         }
 
         @Override
@@ -150,8 +148,8 @@ public enum QueryType implements SingleWhereBuilder {
             Map<String, Object> map = new HashMap<>();
             if (value instanceof List) {
                 List<Object> paramList = (List<Object>) value;
-                map.putAll(SqlBuilderUtils.createSingleConditionMap(columnName + 0, paramList.get(0)));
-                map.putAll(SqlBuilderUtils.createSingleConditionMap(columnName + 1, paramList.get(1)));
+                map.putAll(SqlBuilderHelper.createSingleConditionMap(columnName + 0, paramList.get(0)));
+                map.putAll(SqlBuilderHelper.createSingleConditionMap(columnName + 1, paramList.get(1)));
             }
             return map;
         }

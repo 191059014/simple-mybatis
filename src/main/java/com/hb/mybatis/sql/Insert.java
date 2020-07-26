@@ -1,6 +1,6 @@
-package com.hb.mybatis.helper;
+package com.hb.mybatis.sql;
 
-import com.hb.mybatis.util.SqlBuilderUtils;
+import com.hb.mybatis.helper.SqlBuilderHelper;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/7 17:03
  */
-public class InsertHelper {
+public class Insert {
 
     /**
      * 构建插入sql语句
@@ -19,16 +19,16 @@ public class InsertHelper {
      * @param property  字段集合
      * @return 插入sql语句
      */
-    public static String buildInsertSelectiveSql(String tableName, Map<String, Object> property) {
+    public static String buildSelectiveSql(String tableName, Map<String, Object> property) {
         StringBuilder sb = new StringBuilder("insert into " + tableName);
         // 插入的列
-        StringBuilder cloumSb = new StringBuilder(SqlBuilderUtils.LEFT_SMALL_BRACKET);
+        StringBuilder cloumSb = new StringBuilder(SqlBuilderHelper.LEFT_SMALL_BRACKET);
         // 插入的列对应的值
-        StringBuilder propertySb = new StringBuilder(" values " + SqlBuilderUtils.LEFT_SMALL_BRACKET);
+        StringBuilder propertySb = new StringBuilder(" values " + SqlBuilderHelper.LEFT_SMALL_BRACKET);
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlBuilderUtils.COMMA);
-                propertySb.append(SqlBuilderUtils.createSingleParamSql(key)).append(SqlBuilderUtils.COMMA);
+                cloumSb.append(key).append(SqlBuilderHelper.COMMA);
+                propertySb.append(SqlBuilderHelper.createSingleParamSql(key)).append(SqlBuilderHelper.COMMA);
             }
         });
         // 去掉末尾的逗号

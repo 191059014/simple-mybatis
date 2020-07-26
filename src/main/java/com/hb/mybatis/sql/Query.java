@@ -1,6 +1,10 @@
-package com.hb.mybatis.helper;
+package com.hb.mybatis.sql;
 
-import com.hb.mybatis.util.SqlBuilderUtils;
+import com.hb.mybatis.SimpleMybatisContext;
+import com.hb.mybatis.common.Consts;
+import com.hb.mybatis.helper.QueryType;
+import com.hb.mybatis.helper.SingleWhereBuilder;
+import com.hb.mybatis.helper.SqlBuilderHelper;
 import com.hb.unic.util.util.CloneUtils;
 
 import java.util.Map;
@@ -11,7 +15,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/8 9:49
  */
-public class QueryCondition {
+public class Query {
 
     /**
      * 表名
@@ -36,15 +40,15 @@ public class QueryCondition {
     /**
      * where条件
      */
-    private WhereCondition whereCondition = WhereCondition.build();
+    private Where where = Where.build();
 
     /**
      * 构建QueryCondition对象
      *
-     * @return QueryCondition
+     * @return Query
      */
-    public static QueryCondition build() {
-        return new QueryCondition();
+    public static Query build() {
+        return new Query();
     }
 
     public void setTableName(String tableName) {
@@ -54,11 +58,14 @@ public class QueryCondition {
     /**
      * 通过实体类添加条件
      *
-     * @return WhereCondition
+     * @return Where
      */
-    public <T> QueryCondition analysisEntityCondition(T t) {
+    public <T> Query analysisAll(T t) {
         Map<String, Object> allFields = CloneUtils.bean2Map(t);
-        allFields.forEach((key, value) -> addCondition(QueryType.EQUALS, key, value));
+        if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
+            SqlBuilderHelper.convertToUnderlineMap(allFields);
+        }
+        allFields.forEach((key, value) -> add(QueryType.EQUALS, key, value));
         return this;
     }
 
@@ -69,10 +76,10 @@ public class QueryCondition {
      * @param singleWhereBuilder 操作类型
      * @param columnName         字段名
      * @param value              值
-     * @return QueryCondition
+     * @return Query
      */
-    public QueryCondition addCondition(SingleWhereBuilder singleWhereBuilder, String columnName, Object value) {
-        this.whereCondition.addCondition(singleWhereBuilder, columnName, value);
+    public Query add(SingleWhereBuilder singleWhereBuilder, String columnName, Object value) {
+        this.where.add(singleWhereBuilder, columnName, value);
         return this;
     }
 
@@ -80,9 +87,9 @@ public class QueryCondition {
      * 排序
      *
      * @param sort 排序条件
-     * @return QueryCondition
+     * @return Query
      */
-    public QueryCondition orderBy(String sort) {
+    public Query orderBy(String sort) {
         this.sort = sort;
         return this;
     }
@@ -92,9 +99,9 @@ public class QueryCondition {
      *
      * @param startRows 开始行数
      * @param pageSize  每页条数
-     * @return QueryCondition
+     * @return Query
      */
-    public QueryCondition limit(int startRows, int pageSize) {
+    public Query limit(int startRows, int pageSize) {
         this.limitStartRows = startRows;
         this.limitPageSize = pageSize;
         return this;
@@ -107,21 +114,21 @@ public class QueryCondition {
      */
     public String getCountSql() {
         String baseSql = "select count(1) from " + tableName;
-        return baseSql + whereCondition.getWhereSql();
+        return baseSql + where.getWhereSql();
     }
 
     /**
-     * 获取简单的sql，不包含分页
+     * 获取简单的sql，包含排序，不包含分页
      *
      * @return sql
      */
     public String getSimpleSql() {
         String baseSql = "select * from " + tableName;
-        return baseSql + whereCondition.getWhereSql() + buildSortSql();
+        return baseSql + where.getWhereSql() + buildSortSql();
     }
 
     /**
-     * 获取完整的sql，包含分页
+     * 获取完整的sql，包含排序，包含分页
      *
      * @return sql
      */
@@ -135,10 +142,10 @@ public class QueryCondition {
      * @return map集合
      */
     public Map<String, Object> getParams() {
-        Map<String, Object> whereParams = whereCondition.getWhereParams();
+        Map<String, Object> whereParams = where.getWhereParams();
         if (limitStartRows != null && limitPageSize != null) {
-            whereParams.put(SqlBuilderUtils.START_ROWS, limitStartRows);
-            whereParams.put(SqlBuilderUtils.PAGE_SIZE, limitPageSize);
+            whereParams.put(SqlBuilderHelper.START_ROWS, limitStartRows);
+            whereParams.put(SqlBuilderHelper.PAGE_SIZE, limitPageSize);
         }
         return whereParams;
     }
@@ -166,7 +173,7 @@ public class QueryCondition {
      * @return 分页sql
      */
     private String buildPagesSql() {
-        return this.limitStartRows != null && this.limitPageSize != null ? " limit " + SqlBuilderUtils.createSingleParamSql("startRows") + "," + SqlBuilderUtils.createSingleParamSql("pageSize") : "";
+        return this.limitStartRows != null && this.limitPageSize != null ? " limit " + SqlBuilderHelper.createSingleParamSql("startRows") + "," + SqlBuilderHelper.createSingleParamSql("pageSize") : "";
 
     }
 

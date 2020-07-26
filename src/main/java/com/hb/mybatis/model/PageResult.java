@@ -8,7 +8,7 @@ import java.util.List;
  * @author Mr.huang
  * @since 2020/5/8 16:25
  */
-public class PagesResult<T> {
+public class PageResult<T> {
 
     // 数据集合
     private List<T> data;
@@ -19,7 +19,7 @@ public class PagesResult<T> {
     // 每页条数
     private int pageSize;
 
-    public PagesResult(List<T> data, int count, int startRows, int pageSize) {
+    public PageResult(List<T> data, int count, int startRows, int pageSize) {
         this.data = data;
         this.count = count;
         this.startRows = startRows;

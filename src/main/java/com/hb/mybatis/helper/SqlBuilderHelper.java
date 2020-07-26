@@ -1,9 +1,12 @@
-package com.hb.mybatis.util;
+package com.hb.mybatis.helper;
 
 import com.hb.mybatis.annotation.Table;
 import com.hb.unic.util.tool.Assert;
+import com.hb.unic.util.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +15,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/8 13:19
  */
-public class SqlBuilderUtils {
+public class SqlBuilderHelper {
 
     // 列名前缀
     public static final String COLUMS_NAME = "columns";
@@ -113,10 +116,66 @@ public class SqlBuilderUtils {
      */
     public static <T> String getTableName(Class<T> entityClass) {
         Table entityClassAnnotation = entityClass.getAnnotation(Table.class);
-        Assert.assertNotNull(entityClassAnnotation, "cannot get table name from " + entityClass);
+        Assert.notNull(entityClassAnnotation, entityClass + " without annotation of com.hb.mybatis.annotation.Table");
         String tableName = entityClassAnnotation.value();
-        Assert.assertNotEmpty(tableName, "cannot get table name from " + entityClass);
+        Assert.notBlank(tableName, "cannot get tableName from " + entityClass);
         return tableName;
+    }
+
+    /**
+     * 把map的key转换为驼峰形式的key
+     *
+     * @param property 待转换的map
+     */
+    public static void convertToUnderlineMap(Map<String, Object> property) {
+        if (property == null || property.isEmpty()) {
+            return;
+        }
+        Map<String, Object> humpProperty = new HashMap<>();
+        property.forEach((key, value) -> {
+            humpProperty.put(StringUtils.hump2Underline(key), value);
+        });
+        property.clear();
+        property.putAll(humpProperty);
+    }
+
+    /**
+     * 把list中map中的key为下划线转换为驼峰
+     *
+     * @param list 待转换的list
+     */
+    public static void convertToHumpMapList(List<Map<String, Object>> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        List<Map<String, Object>> humpMapList = new ArrayList<>();
+        list.forEach(map -> {
+            Map<String, Object> humpMap = new HashMap<>();
+            map.forEach((key, value) -> {
+                humpMap.put(StringUtils.underline2Hump(key), value);
+            });
+            humpMapList.add(humpMap);
+        });
+        list.clear();
+        list.addAll(humpMapList);
+    }
+
+    /**
+     * map中的key转换为驼峰
+     *
+     * @param map 待转换的map
+     */
+    public static void convertToHumpMap(Map<String, Object> map) {
+        if (map == null || map.isEmpty()) {
+            return;
+        }
+        List<Map<String, Object>> humpMapList = new ArrayList<>();
+        Map<String, Object> humpMap = new HashMap<>();
+        map.forEach((key, value) -> {
+            humpMap.put(StringUtils.underline2Hump(key), value);
+        });
+        map.clear();
+        map.putAll(humpMap);
     }
 
 }
