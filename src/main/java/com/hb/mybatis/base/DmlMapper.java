@@ -63,8 +63,8 @@ public class DmlMapper {
      * @return 集合
      */
     public <T> List<T> selectList(Class<T> entityClass, Query query) {
-        Assert.notNull(entityClass,"entityClass is null");
-        Assert.notNull(query,"query sql is null");
+        Assert.notNull(entityClass, "entityClass is null");
+        Assert.notNull(query, "query sql is null");
         query.setTableName(SqlBuilderHelper.getTableName(entityClass));
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(), query.getParams());
         if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
@@ -81,8 +81,8 @@ public class DmlMapper {
      * @return 总条数
      */
     public <T> int selectCount(Class<T> entityClass, Query query) {
-        Assert.notNull(entityClass,"entityClass is null");
-        Assert.notNull(query,"query sql is null");
+        Assert.notNull(entityClass, "entityClass is null");
+        Assert.notNull(query, "query sql is null");
         query.setTableName(SqlBuilderHelper.getTableName(entityClass));
         return baseMapper.selectCount(query.getCountSql(), query.getParams());
     }
@@ -95,8 +95,8 @@ public class DmlMapper {
      * @return 分页集合
      */
     public <T> PageResult<T> selectPages(Class<T> entityClass, Query query) {
-        Assert.notNull(entityClass,"entityClass is null");
-        Assert.notNull(query,"query sql is null");
+        Assert.notNull(entityClass, "entityClass is null");
+        Assert.notNull(query, "query sql is null");
         query.setTableName(SqlBuilderHelper.getTableName(entityClass));
         int count = baseMapper.selectCount(query.getCountSql(), query.getParams());
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(), query.getParams());
@@ -115,10 +115,26 @@ public class DmlMapper {
      * @return 结果集合
      */
     public List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where) {
-        Assert.notBlank(sqlStatementBeforeWhere,"sqlStatementBeforeWhere is null");
-        Assert.notNull(where,"where sql is null");
+        Assert.notBlank(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
+        Assert.notNull(where, "where sql is null");
         String fullSql = sqlStatementBeforeWhere + where.getWhereSql();
         return baseMapper.dynamicSelect(fullSql, where.getWhereParams());
+    }
+
+    /**
+     * 自定义sql语句动态查询，要求写全where前面的sql，并按结果类型映射到对应的实体类
+     *
+     * @param sqlStatementBeforeWhere where前面的sql语句
+     * @param where                   where条件
+     * @param resultClass             需要将结果映射到实体类
+     * @return 结果集合
+     */
+    public <T> List<T> customSelect(String sqlStatementBeforeWhere, Where where, Class<T> resultClass) {
+        List<Map<String, Object>> queryResult = customSelect(sqlStatementBeforeWhere, where);
+        if (SimpleMybatisContext.getBooleanValue(Consts.HUMP_MAPPING)) {
+            SqlBuilderHelper.convertToHumpMapList(queryResult);
+        }
+        return CloneUtils.maps2Beans(queryResult, resultClass);
     }
 
     /**
@@ -163,7 +179,7 @@ public class DmlMapper {
      * @return 删除行数
      */
     public <T> int deleteBySelective(Class<T> entityClass, Where where) {
-        Assert.notNull(entityClass,"entityClass is null");
+        Assert.notNull(entityClass, "entityClass is null");
         Assert.ifTrueThrows(where.isEmpty(), "where conditions of delete is empty");
         String sqlStatement = Delete.buildSelectiveSql(SqlBuilderHelper.getTableName(entityClass), where);
         return baseMapper.deleteBySelective(sqlStatement, where.getWhereParams());
