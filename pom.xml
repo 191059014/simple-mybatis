@@ -27,6 +27,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.hb.unic</groupId>
+            <artifactId>unic-logger</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!--mybatis-->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
