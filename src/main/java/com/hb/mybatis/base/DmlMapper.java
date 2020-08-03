@@ -123,7 +123,7 @@ public class DmlMapper<T> implements InitializingBean {
      * @return 结果集合
      */
     public List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where) {
-        Assert.notBlank(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
+        Assert.hasText(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
         Assert.notNull(where, "where sql is null");
         String fullSql = sqlStatementBeforeWhere + where.getWhereSql();
         return baseMapper.dynamicSelect(fullSql, where.getWhereParams());
