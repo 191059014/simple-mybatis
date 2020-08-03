@@ -112,7 +112,7 @@ public class DmlMapper<T> implements InitializingBean {
             SqlBuilderHelper.convertToHumpMapList(queryResult);
         }
         List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
-        return new PageResult<>(tList, count, query.getLimitStartRows(), query.getLimitPageSize());
+        return new PageResult<>(tList, count, query.getLimitStartRows(), query.getPageSize());
     }
 
     /**
