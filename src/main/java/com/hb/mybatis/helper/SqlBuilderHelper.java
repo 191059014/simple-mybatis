@@ -118,7 +118,7 @@ public class SqlBuilderHelper {
         Table entityClassAnnotation = entityClass.getAnnotation(Table.class);
         Assert.notNull(entityClassAnnotation, entityClass + " without annotation of com.hb.mybatis.annotation.Table");
         String tableName = entityClassAnnotation.value();
-        Assert.notBlank(tableName, "cannot get tableName from " + entityClass);
+        Assert.hasText(tableName, "cannot get tableName from " + entityClass);
         return tableName;
     }
 
