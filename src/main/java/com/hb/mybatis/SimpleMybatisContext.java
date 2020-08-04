@@ -1,10 +1,8 @@
 package com.hb.mybatis;
 
-import com.hb.mybatis.common.Consts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -26,19 +24,12 @@ public class SimpleMybatisContext implements InitializingBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMybatisContext.class);
 
     /**
-     * 应用名称
-     */
-    @Value("${simple.mybatis.hump_mapping:true}")
-    private String humpMapping;
-
-    /**
      * 配置集合
      */
     private static Map<String, String> maps = new HashMap<>(8);
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        maps.put(Consts.HUMP_MAPPING, humpMapping);
         LOGGER.info("SimpleMybatisContext accept properties: {}", maps);
     }
 

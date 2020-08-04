@@ -7,11 +7,6 @@ package com.hb.mybatis.common;
  */
 public class Consts {
 
-    /**
-     * 驼峰映射
-     */
-    public static final String HUMP_MAPPING = "humpMapping";
-
     // 数据记录状态
     public static final String RECORD_STATUS = "recordStatus";
 

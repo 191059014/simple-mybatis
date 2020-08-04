@@ -1,12 +1,9 @@
 package com.hb.mybatis.sql;
 
-import com.hb.mybatis.helper.SqlBuilderHelper;
+import com.hb.mybatis.helper.SinglePropertyBuilder;
+import com.hb.mybatis.helper.SqlBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * 查询条件
@@ -15,11 +12,6 @@ import java.util.stream.Stream;
  * @since 2020/5/8 9:49
  */
 public class Query {
-
-    /**
-     * 表名
-     */
-    private String tableName;
 
     /**
      * 排序
@@ -37,14 +29,9 @@ public class Query {
     private Integer pageSize;
 
     /**
-     * and过滤条件
+     * where条件
      */
-    private List<Where> andFilters = new ArrayList<>();
-
-    /**
-     * or过滤条件集合
-     */
-    private List<Where> orFilters = new ArrayList<>();
+    private Where where = Where.build();
 
     /**
      * 构建QueryCondition对象
@@ -55,28 +42,37 @@ public class Query {
         return new Query();
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
     /**
-     * 添加and过滤器
+     * 通过实体类添加条件
      *
-     * @param where 条件
-     * @return 对象本身
+     * @return Where
      */
-    public Query andFilter(Where...whereArr) {
+    public <T> Query add(T t) {
+        where.add(t);
         return this;
     }
 
     /**
-     * 添加or过滤器
+     * 增加sql语句
      *
-     * @param where 条件
-     * @return 对象本身
+     * @param sql sql语句
+     * @return Where
      */
-    public Query orFilter(Where where) {
-        this.orFilters.add(where);
+    public Query sql(String sql) {
+        where.sql(sql);
+        return this;
+    }
+
+    /**
+     * 添加条件
+     *
+     * @param singlePropertyBuilder 操作类型
+     * @param columnName            字段名
+     * @param value                 值
+     * @return QueryCondition
+     */
+    public Query add(SinglePropertyBuilder singlePropertyBuilder, String columnName, Object value) {
+        where.add(singlePropertyBuilder, columnName, value);
         return this;
     }
 
@@ -109,7 +105,7 @@ public class Query {
      *
      * @return sql
      */
-    public String getCountSql() {
+    public String getCountSql(String tableName) {
         String baseSql = "select count(1) from " + tableName;
         return baseSql + getWhereSql();
     }
@@ -119,7 +115,7 @@ public class Query {
      *
      * @return sql
      */
-    public String getSimpleSql() {
+    public String getSimpleSql(String tableName) {
         String baseSql = "select * from " + tableName;
         return baseSql + getWhereSql() + buildSortSql();
     }
@@ -129,8 +125,8 @@ public class Query {
      *
      * @return sql
      */
-    public String getFullSql() {
-        return getSimpleSql() + buildPagesSql();
+    public String getFullSql(String tableName) {
+        return getSimpleSql(tableName) + buildPagesSql();
     }
 
     /**
@@ -139,22 +135,7 @@ public class Query {
      * @return sql
      */
     public String getWhereSql() {
-        StringBuilder sb = new StringBuilder(" where 1=1 ");
-        if (this.andFilters.size() > 0) {
-            this.andFilters.forEach(where -> {
-                sb.append(" and (");
-                sb.append(where.getWhereSql());
-                sb.append(" ) ");
-            });
-        }
-        if (this.orFilters.size() > 0) {
-            this.orFilters.forEach(where -> {
-                sb.append(" or (");
-                sb.append(where.getWhereSql());
-                sb.append(" ) ");
-            });
-        }
-        return sb.toString();
+        return where.getWhereSql();
     }
 
     /**
@@ -163,22 +144,7 @@ public class Query {
      * @return map集合
      */
     public Map<String, Object> getParams() {
-        Map<String, Object> whereParams = new HashMap<>();
-        if (this.andFilters.size() > 0) {
-            this.andFilters.forEach(where -> {
-                whereParams.putAll(where.getWhereParams());
-            });
-        }
-        if (this.orFilters.size() > 0) {
-            this.orFilters.forEach(where -> {
-                whereParams.putAll(where.getWhereParams());
-            });
-        }
-        if (startRow != null && pageSize != null) {
-            whereParams.put(SqlBuilderHelper.START_ROWS, startRow);
-            whereParams.put(SqlBuilderHelper.PAGE_SIZE, pageSize);
-        }
-        return whereParams;
+        return where.getWhereParams();
     }
 
     public Integer getLimitStartRows() {
@@ -204,7 +170,7 @@ public class Query {
      * @return 分页sql
      */
     private String buildPagesSql() {
-        return this.startRow != null && this.pageSize != null ? " limit " + SqlBuilderHelper.createSingleParamSql("startRow") + "," + SqlBuilderHelper.createSingleParamSql("pageSize") : "";
+        return this.startRow != null && this.pageSize != null ? " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize") : "";
 
     }
 

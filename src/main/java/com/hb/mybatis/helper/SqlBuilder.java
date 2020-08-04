@@ -1,7 +1,6 @@
 package com.hb.mybatis.helper;
 
-import com.hb.mybatis.annotation.Table;
-import com.hb.unic.util.tool.Assert;
+import com.hb.mybatis.sql.Where;
 import com.hb.unic.util.util.StringUtils;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/8 13:19
  */
-public class SqlBuilderHelper {
+public class SqlBuilder {
 
     // 列名前缀
     public static final String COLUMS_NAME = "columns";
@@ -108,21 +107,6 @@ public class SqlBuilderHelper {
     }
 
     /**
-     * 根据实体类获取表名
-     *
-     * @param entityClass 实体类
-     * @param <T>         实体类类型
-     * @return 表名
-     */
-    public static <T> String getTableName(Class<T> entityClass) {
-        Table entityClassAnnotation = entityClass.getAnnotation(Table.class);
-        Assert.notNull(entityClassAnnotation, entityClass + " without annotation of com.hb.mybatis.annotation.Table");
-        String tableName = entityClassAnnotation.value();
-        Assert.hasText(tableName, "cannot get tableName from " + entityClass);
-        return tableName;
-    }
-
-    /**
      * 把map的key转换为驼峰形式的key
      *
      * @param property 待转换的map
@@ -176,6 +160,38 @@ public class SqlBuilderHelper {
         });
         map.clear();
         map.putAll(humpMap);
+    }
+
+    /**
+     * 获取总条数sql
+     *
+     * @return sql
+     */
+    public String getCountSql(String tableName, Where where) {
+        String countSql = "select count(1) from" + tableName;
+        if (where != null) {
+            countSql += where.getWhereSql();
+        }
+        return countSql;
+    }
+
+    /**
+     * 获取完整的sql，包含排序，包含分页
+     *
+     * @return sql
+     */
+    public String getSimpleSql(String tableName, Where where, String sort, int startRow, int pageSize) {
+        String simpleSql = "select * from " + tableName;
+        if (where != null) {
+            simpleSql += where.getWhereSql();
+        }
+        if (sort != null && !"".equals(sort)) {
+            simpleSql += " order by " + sort;
+        }
+        if (startRow > 0 && pageSize > 0) {
+            simpleSql += " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize");
+        }
+        return simpleSql;
     }
 
 }

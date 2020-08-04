@@ -4,7 +4,6 @@ import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -14,7 +13,6 @@ import java.lang.annotation.Target;
  *
  * @version v0.1, 2020/8/4 9:26, create by huangbiao.
  */
-@Inherited
 @Documented
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
