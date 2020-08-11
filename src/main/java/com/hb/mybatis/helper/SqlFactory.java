@@ -1,5 +1,6 @@
 package com.hb.mybatis.helper;
 
+import com.hb.mybatis.enums.QueryType;
 import com.hb.unic.util.util.StringUtils;
 
 /**
@@ -9,13 +10,6 @@ import com.hb.unic.util.util.StringUtils;
  * @since 2020/5/8 11:14
  */
 public class SqlFactory {
-
-    /**
-     * 条件类型
-     */
-    public enum QueryType {
-        EQUAL, NOT_EQUAL, MAX_THAN, MIN_THAN, MAX_EQUAL_THAN, MIN_EQUAL_THAN, LIKE, IN, BETWEEN_AND
-    }
 
     /**
      * 构建单个查询条件

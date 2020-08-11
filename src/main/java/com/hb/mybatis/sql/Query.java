@@ -1,6 +1,6 @@
 package com.hb.mybatis.sql;
 
-import com.hb.mybatis.helper.SinglePropertyBuilder;
+import com.hb.mybatis.enums.QueryType;
 import com.hb.mybatis.util.SqlUtils;
 
 import java.util.Map;
@@ -66,13 +66,13 @@ public class Query {
     /**
      * 添加条件
      *
-     * @param singlePropertyBuilder 操作类型
-     * @param columnName            字段名
-     * @param value                 值
+     * @param queryType  操作类型
+     * @param columnName 字段名
+     * @param value      值
      * @return QueryCondition
      */
-    public Query add(SinglePropertyBuilder singlePropertyBuilder, String columnName, Object value) {
-        where.add(singlePropertyBuilder, columnName, value);
+    public Query add(QueryType queryType, String columnName, Object value) {
+        where.add(queryType, columnName, value);
         return this;
     }
 
