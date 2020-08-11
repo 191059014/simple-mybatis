@@ -53,6 +53,38 @@ public class Query {
     }
 
     /**
+     * and开始
+     */
+    public Query and() {
+        where.sql(" and ( 1=1 ");
+        return this;
+    }
+
+    /**
+     * and结束
+     */
+    public Query andEnd() {
+        where.sql(" ) ");
+        return this;
+    }
+
+    /**
+     * or开始
+     */
+    public Query or() {
+        where.sql(" or ( 1=1");
+        return this;
+    }
+
+    /**
+     * or结束
+     */
+    public Query orEnd() {
+        where.sql(" ) ");
+        return this;
+    }
+
+    /**
      * 增加sql语句
      *
      * @param sql sql语句

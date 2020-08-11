@@ -20,7 +20,7 @@ public class Where {
     /**
      * sql语句
      */
-    private String whereSql;
+    private String whereSql = SqlUtils.WHERE_TRUE;
 
     /**
      * 参数集合

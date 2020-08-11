@@ -25,7 +25,7 @@ public class SqlUtils {
     public static final String DOT = ".";
 
     // 逗号
-    public static final String COMMA = ",";
+    public static final String COMMA = ", ";
 
     // 美元符号
     public static final String DOLLAR_SYMBOL = "#";
@@ -110,7 +110,7 @@ public class SqlUtils {
      *
      * @return sql
      */
-    public static String getSimpleSql(String tableName, Where where, String sort, int startRow, int pageSize) {
+    public static String getSimpleSql(String tableName, Where where, String sort, Integer startRow, Integer pageSize) {
         String simpleSql = "select * from " + tableName;
         if (where != null) {
             simpleSql += where.getWhereSql();
@@ -118,7 +118,7 @@ public class SqlUtils {
         if (sort != null && !"".equals(sort)) {
             simpleSql += " order by " + sort;
         }
-        if (startRow > 0 && pageSize > 0) {
+        if (startRow != null && startRow > 0 && pageSize != null && pageSize > 0) {
             simpleSql += " limit " + SqlUtils.createSingleParamSql("startRow") + "," + SqlUtils.createSingleParamSql("pageSize");
         }
         return simpleSql;

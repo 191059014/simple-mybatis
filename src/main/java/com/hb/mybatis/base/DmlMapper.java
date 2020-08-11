@@ -284,7 +284,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
          */
         Type type = getClass().getGenericSuperclass();
         if (type instanceof ParameterizedType) {
-            entityClass = ((Class) ((ParameterizedType) type).getActualTypeArguments()[0]);
+            entityClass = ((Class) ((ParameterizedType) type).getActualTypeArguments()[1]);
         } else {
             throw new Exception("NoEntityType: " + type);
         }
@@ -294,18 +294,21 @@ public class DmlMapper<ID, T> implements InitializingBean {
         if (table == null) {
             throw new Exception("EmptyTableName: " + entityName);
         }
+        tableName = table.value();
         Field[] allFields = ReflectUtils.getAllFields(entityClass);
         for (int i = 0; i < allFields.length; i++) {
             Field field = allFields[i];
             String propertyName = field.getName();
             String columnName = field.getName();
             Column column = field.getAnnotation(Column.class);
-            if (column != null) {
+            if (column != null && !"".equals(column.value())) {
                 columnName = column.value();
             }
             Id id = field.getAnnotation(Id.class);
             if (id != null) {
-                columnName = id.value();
+                if (!"".equals(id.value())) {
+                    columnName = id.value();
+                }
                 primaryKey = columnName;
             }
             // 字段映射
@@ -313,10 +316,6 @@ public class DmlMapper<ID, T> implements InitializingBean {
             // 字段映射
             column2PropertyMap.put(columnName, propertyName);
         }
-
-        Stream.of(allFields).forEach(field -> {
-
-        });
         if (primaryKey == null) {
             throw new Exception("NonePrimaryKey: " + entityName);
         }

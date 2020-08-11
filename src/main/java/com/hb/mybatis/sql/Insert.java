@@ -1,6 +1,7 @@
 package com.hb.mybatis.sql;
 
 import com.hb.mybatis.util.SqlUtils;
+import com.hb.unic.util.util.StringUtils;
 
 import java.util.Map;
 
@@ -32,8 +33,8 @@ public class Insert {
             }
         });
         // 去掉末尾的逗号
-        String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1) + ")";
-        String propertySql = propertySb.toString().substring(0, propertySb.toString().length() - 1) + ")";
+        String cloumnSql = StringUtils.lastBefore(cloumSb.toString(),SqlUtils.COMMA) + ")";
+        String propertySql = StringUtils.lastBefore(propertySb.toString(),SqlUtils.COMMA) + ")";
         sb.append(cloumnSql).append(propertySql);
         return sb.toString();
     }
