@@ -5,7 +5,7 @@ import com.hb.mybatis.annotation.Id;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.helper.EntityMetaCache;
-import com.hb.mybatis.helper.QueryType;
+import com.hb.mybatis.helper.SqlFactory;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PageResult;
 import com.hb.mybatis.sql.Delete;
@@ -27,11 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * ========== dml操作数据库类 ==========
@@ -110,7 +108,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      */
     public T selectById(ID id) {
         Query query = Query.build();
-        query.add(QueryType.EQUALS, primaryKey, id);
+        query.add(SqlFactory.EQUALS, primaryKey, id);
         List<T> tList = this.selectList(query);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -220,7 +218,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      * @return 单条数据
      */
     public int updateById(ID id, T entity) {
-        Where where = Where.build().add(QueryType.EQUALS, primaryKey, id);
+        Where where = Where.build().add(SqlFactory.EQUALS, primaryKey, id);
         return updateBySelective(entity, where);
     }
 
@@ -244,7 +242,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      * @return 单条数据
      */
     public int deleteById(ID id) {
-        Where where = Where.build().add(QueryType.EQUALS, primaryKey, id);
+        Where where = Where.build().add(SqlFactory.EQUALS, primaryKey, id);
         return deleteBySelective(where);
     }
 
@@ -273,7 +271,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      * @return 删除行数
      */
     public int logicDeleteById(ID id) {
-        Where where = Where.build().add(QueryType.EQUALS, primaryKey, id);
+        Where where = Where.build().add(SqlFactory.EQUALS, primaryKey, id);
         return logicDelete(where);
     }
 

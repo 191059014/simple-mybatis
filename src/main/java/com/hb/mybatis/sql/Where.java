@@ -1,7 +1,7 @@
 package com.hb.mybatis.sql;
 
 import com.hb.mybatis.base.DmlMapper;
-import com.hb.mybatis.helper.QueryType;
+import com.hb.mybatis.helper.SqlFactory;
 import com.hb.mybatis.helper.SinglePropertyBuilder;
 import com.hb.mybatis.util.SqlUtils;
 import com.hb.unic.util.util.CloneUtils;
@@ -20,7 +20,7 @@ public class Where {
     /**
      * sql语句
      */
-    private String whereSql = SqlUtils.WHERE_TRUE;
+    private String whereSql = " where ";
 
     /**
      * 参数集合
@@ -44,7 +44,7 @@ public class Where {
     public <T> Where add(T t) {
         Map<String, Object> allFields = CloneUtils.bean2Map(t);
         SqlUtils.convertPropertyNameToColumnName(allFields, DmlMapper.getEntityMeta(t.getClass().getName()).getProperty2ColumnMap());
-        allFields.forEach((key, value) -> add(QueryType.EQUALS, key, value));
+        allFields.forEach((key, value) -> add(SqlFactory.EQUALS, key, value));
         return this;
     }
 
@@ -69,6 +69,9 @@ public class Where {
      */
     public Where add(SinglePropertyBuilder singlePropertyBuilder, String columnName, Object value) {
         if (value != null && !"".equals(value.toString())) {
+            if (params.size() > 0) {
+                whereSql += " and ";
+            }
             whereSql += singlePropertyBuilder.buildSql(columnName, value);
             params.put(columnName, value);
         }
@@ -81,7 +84,10 @@ public class Where {
      * @return sql
      */
     public String getWhereSql() {
-        return this.whereSql;
+        if (params.size() > 0) {
+            return this.whereSql;
+        }
+        return "";
     }
 
     /**

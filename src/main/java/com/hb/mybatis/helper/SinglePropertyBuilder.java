@@ -12,9 +12,9 @@ public interface SinglePropertyBuilder {
      * 构建sql
      *
      * @param columnName 字段名
-     * @param value      字段值
+     * @param objArr     参数，此参数
      * @return sql语句
      */
-    String buildSql(String columnName, Object value);
+    String buildSql(String columnName, Object... objArr);
 
 }
