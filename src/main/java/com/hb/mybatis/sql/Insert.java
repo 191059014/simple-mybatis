@@ -1,6 +1,6 @@
 package com.hb.mybatis.sql;
 
-import com.hb.mybatis.helper.SqlBuilder;
+import com.hb.mybatis.util.SqlUtils;
 
 import java.util.Map;
 
@@ -22,13 +22,13 @@ public class Insert {
     public static String buildSelectiveSql(String tableName, Map<String, Object> property) {
         StringBuilder sb = new StringBuilder("insert into " + tableName);
         // 插入的列
-        StringBuilder cloumSb = new StringBuilder(SqlBuilder.LEFT_SMALL_BRACKET);
+        StringBuilder cloumSb = new StringBuilder(SqlUtils.LEFT_SMALL_BRACKET);
         // 插入的列对应的值
-        StringBuilder propertySb = new StringBuilder(" values " + SqlBuilder.LEFT_SMALL_BRACKET);
+        StringBuilder propertySb = new StringBuilder(" values " + SqlUtils.LEFT_SMALL_BRACKET);
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlBuilder.COMMA);
-                propertySb.append(SqlBuilder.createSingleParamSql(key)).append(SqlBuilder.COMMA);
+                cloumSb.append(key).append(SqlUtils.COMMA);
+                propertySb.append(SqlUtils.createSingleParamSql(key)).append(SqlUtils.COMMA);
             }
         });
         // 去掉末尾的逗号

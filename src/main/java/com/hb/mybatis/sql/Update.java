@@ -1,6 +1,6 @@
 package com.hb.mybatis.sql;
 
-import com.hb.mybatis.helper.SqlBuilder;
+import com.hb.mybatis.util.SqlUtils;
 
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class Update {
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlBuilder.EQUALS).append(SqlBuilder.createSingleColumnSql(key)).append(SqlBuilder.COMMA);
+                cloumSb.append(key).append(SqlUtils.EQUALS).append(SqlUtils.createSingleColumnSql(key)).append(SqlUtils.COMMA);
             }
         });
         // 去掉最后一个逗号

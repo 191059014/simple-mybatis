@@ -1,12 +1,6 @@
-package com.hb.mybatis.helper;
+package com.hb.mybatis.util;
 
 import com.hb.mybatis.sql.Where;
-import com.hb.unic.util.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 常量
@@ -14,7 +8,7 @@ import java.util.Map;
  * @author Mr.huang
  * @since 2020/5/8 13:19
  */
-public class SqlBuilder {
+public class SqlUtils {
 
     // 列名前缀
     public static final String COLUMS_NAME = "columns";
@@ -71,20 +65,7 @@ public class SqlBuilder {
     public static final String CONCAT = "concat";
 
     // where语句
-    public static final String WHERE_TRUE = " where 1=1";
-
-    /**
-     * 组装条件集合
-     *
-     * @param key   key
-     * @param value value
-     * @return map
-     */
-    public static Map<String, Object> createSingleConditionMap(String key, Object value) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(key, value);
-        return map;
-    }
+    public static final String WHERE_TRUE = " where 1=1 ";
 
     /**
      * 生成#{params.paramName}字符串
@@ -107,67 +88,11 @@ public class SqlBuilder {
     }
 
     /**
-     * 把map的key转换为驼峰形式的key
-     *
-     * @param property 待转换的map
-     */
-    public static void convertToUnderlineMap(Map<String, Object> property) {
-        if (property == null || property.isEmpty()) {
-            return;
-        }
-        Map<String, Object> humpProperty = new HashMap<>();
-        property.forEach((key, value) -> {
-            humpProperty.put(StringUtils.hump2Underline(key), value);
-        });
-        property.clear();
-        property.putAll(humpProperty);
-    }
-
-    /**
-     * 把list中map中的key为下划线转换为驼峰
-     *
-     * @param list 待转换的list
-     */
-    public static void convertToHumpMapList(List<Map<String, Object>> list) {
-        if (list == null || list.isEmpty()) {
-            return;
-        }
-        List<Map<String, Object>> humpMapList = new ArrayList<>();
-        list.forEach(map -> {
-            Map<String, Object> humpMap = new HashMap<>();
-            map.forEach((key, value) -> {
-                humpMap.put(StringUtils.underline2Hump(key), value);
-            });
-            humpMapList.add(humpMap);
-        });
-        list.clear();
-        list.addAll(humpMapList);
-    }
-
-    /**
-     * map中的key转换为驼峰
-     *
-     * @param map 待转换的map
-     */
-    public static void convertToHumpMap(Map<String, Object> map) {
-        if (map == null || map.isEmpty()) {
-            return;
-        }
-        List<Map<String, Object>> humpMapList = new ArrayList<>();
-        Map<String, Object> humpMap = new HashMap<>();
-        map.forEach((key, value) -> {
-            humpMap.put(StringUtils.underline2Hump(key), value);
-        });
-        map.clear();
-        map.putAll(humpMap);
-    }
-
-    /**
      * 获取总条数sql
      *
      * @return sql
      */
-    public String getCountSql(String tableName, Where where) {
+    public static String getCountSql(String tableName, Where where) {
         String countSql = "select count(1) from" + tableName;
         if (where != null) {
             countSql += where.getWhereSql();
@@ -180,7 +105,7 @@ public class SqlBuilder {
      *
      * @return sql
      */
-    public String getSimpleSql(String tableName, Where where, String sort, int startRow, int pageSize) {
+    public static String getSimpleSql(String tableName, Where where, String sort, int startRow, int pageSize) {
         String simpleSql = "select * from " + tableName;
         if (where != null) {
             simpleSql += where.getWhereSql();
@@ -189,7 +114,7 @@ public class SqlBuilder {
             simpleSql += " order by " + sort;
         }
         if (startRow > 0 && pageSize > 0) {
-            simpleSql += " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize");
+            simpleSql += " limit " + SqlUtils.createSingleParamSql("startRow") + "," + SqlUtils.createSingleParamSql("pageSize");
         }
         return simpleSql;
     }

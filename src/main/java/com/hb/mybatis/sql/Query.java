@@ -1,7 +1,7 @@
 package com.hb.mybatis.sql;
 
 import com.hb.mybatis.helper.SinglePropertyBuilder;
-import com.hb.mybatis.helper.SqlBuilder;
+import com.hb.mybatis.util.SqlUtils;
 
 import java.util.Map;
 
@@ -101,44 +101,6 @@ public class Query {
     }
 
     /**
-     * 获取总条数sql
-     *
-     * @return sql
-     */
-    public String getCountSql(String tableName) {
-        String baseSql = "select count(1) from " + tableName;
-        return baseSql + getWhereSql();
-    }
-
-    /**
-     * 获取简单的sql，包含排序，不包含分页
-     *
-     * @return sql
-     */
-    public String getSimpleSql(String tableName) {
-        String baseSql = "select * from " + tableName;
-        return baseSql + getWhereSql() + buildSortSql();
-    }
-
-    /**
-     * 获取完整的sql，包含排序，包含分页
-     *
-     * @return sql
-     */
-    public String getFullSql(String tableName) {
-        return getSimpleSql(tableName) + buildPagesSql();
-    }
-
-    /**
-     * 获取where条件
-     *
-     * @return sql
-     */
-    public String getWhereSql() {
-        return where.getWhereSql();
-    }
-
-    /**
      * 获取查询条件
      *
      * @return map集合
@@ -147,31 +109,45 @@ public class Query {
         return where.getWhereParams();
     }
 
-    public Integer getLimitStartRows() {
+    /**
+     * 获取总条数sql
+     *
+     * @return sql
+     */
+    public String getCountSql(String tableName) {
+        return SqlUtils.getCountSql(tableName, where);
+    }
+
+    /**
+     * 获取完整的sql，包含排序，包含分页
+     *
+     * @return sql
+     */
+    public String getSimpleSql(String tableName) {
+        return SqlUtils.getSimpleSql(tableName, where, sort, startRow, pageSize);
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
+    public Integer getStartRow() {
         return startRow;
+    }
+
+    public void setStartRow(Integer startRow) {
+        this.startRow = startRow;
     }
 
     public Integer getPageSize() {
         return pageSize;
     }
 
-    /**
-     * 构建排序sql
-     *
-     * @return 排序sql
-     */
-    private String buildSortSql() {
-        return this.sort != null && !"".equals(this.sort) ? " order by " + this.sort : "";
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
-
-    /**
-     * 构建分页sql
-     *
-     * @return 分页sql
-     */
-    private String buildPagesSql() {
-        return this.startRow != null && this.pageSize != null ? " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize") : "";
-
-    }
-
 }

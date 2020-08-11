@@ -4,6 +4,7 @@ import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.annotation.Id;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
+import com.hb.mybatis.helper.QueryType;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PageResult;
 import com.hb.mybatis.sql.Delete;
@@ -78,11 +79,12 @@ public class DmlMapper<ID, T> implements InitializingBean {
     /**
      * 条件查询单条数据
      *
-     * @param ID id集合
+     * @param id id集合
      * @return 单条数据
      */
     public T selectById(ID id) {
         Query query = Query.build();
+        query.add(QueryType.EQUALS, primaryKey, id);
         List<T> tList = this.selectList(query);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -108,7 +110,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
         Assert.notNull(entityClass, "entityClass is null");
         Assert.notNull(query, "query sql is null");
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(this.tableName), query.getParams());
-        convertColumnsNameToPropertyName(queryResult, this.entityClass.getName());
+        convertColumnsNameToPropertyName(queryResult);
         return CloneUtils.maps2Beans(queryResult, entityClass);
     }
 
@@ -134,10 +136,10 @@ public class DmlMapper<ID, T> implements InitializingBean {
         Assert.notNull(entityClass, "entityClass is null");
         Assert.notNull(query, "query sql is null");
         int count = baseMapper.selectCount(query.getCountSql(this.tableName), query.getParams());
-        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getFullSql(this.tableName), query.getParams());
-        convertColumnsNameToPropertyName(queryResult, this.entityClass.getName());
+        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(query.getSimpleSql(this.tableName), query.getParams());
+        convertColumnsNameToPropertyName(queryResult);
         List<T> tList = CloneUtils.maps2Beans(queryResult, entityClass);
-        return new PageResult<>(tList, count, query.getLimitStartRows(), query.getPageSize());
+        return new PageResult<>(tList, count, query.getStartRow(), query.getPageSize());
     }
 
     /**
@@ -163,7 +165,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
     public int insertBySelective(T entity) {
         Assert.notNull(entity, "entity of insert is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
-        convertPropertyNameToColumnName(property, this.entityClass.getName());
+        convertPropertyNameToColumnName(property);
         String sqlStatement = Insert.buildSelectiveSql(this.tableName, property);
         return baseMapper.insertSelective(sqlStatement, property);
     }
@@ -179,7 +181,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
         Assert.notNull(entity, "entity of update is null");
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions of update is empty");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
-        convertPropertyNameToColumnName(property, this.entityClass.getName());
+        convertPropertyNameToColumnName(property);
         String sqlStatement = Update.buildSelectiveSql(this.tableName, property, where);
         return baseMapper.updateBySelective(sqlStatement, property, where.getWhereParams());
     }
@@ -187,13 +189,13 @@ public class DmlMapper<ID, T> implements InitializingBean {
     /**
      * 条件查询单条数据
      *
-     * @param ID id集合
+     * @param id     id
+     * @param entity 更新的信息
      * @return 单条数据
      */
-    public T updateById(ID id) {
-        Query query = Query.build();
-        List<T> tList = this.selectList(query);
-        return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
+    public int updateById(ID id, T entity) {
+        Where where = Where.build().add(QueryType.EQUALS, primaryKey, id);
+        return updateBySelective(entity, where);
     }
 
     /**
@@ -212,26 +214,25 @@ public class DmlMapper<ID, T> implements InitializingBean {
     /**
      * 条件查询单条数据
      *
-     * @param ID id集合
+     * @param id id集合
      * @return 单条数据
      */
-    public T deleteById(ID id) {
-        Query query = Query.build();
-        List<T> tList = this.selectList(query);
-        return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
+    public int deleteById(ID id) {
+        Where where = Where.build().add(QueryType.EQUALS, primaryKey, id);
+        return deleteBySelective(where);
     }
 
     /**
      * 逻辑删除
      *
-     * @param whereCondition 条件
+     * @param where 条件
      * @return 删除行数
      */
-    public int logicDelete(Where whereCondition) {
+    public int logicDelete(Where where) {
         try {
             T t = entityClass.newInstance();
             ReflectUtils.setPropertyValue(Consts.RECORD_STATUS, Consts.RECORD_STATUS_INVALID, t);
-            return updateBySelective(t, whereCondition);
+            return updateBySelective(t, where);
         } catch (Exception e) {
             LOGGER.error("logicDelete error：{}", LogExceptionWapper.getStackTrace(e));
             return 0;
@@ -242,19 +243,12 @@ public class DmlMapper<ID, T> implements InitializingBean {
     /**
      * 逻辑删除
      *
-     * @param whereCondition 条件
+     * @param id id主键
      * @return 删除行数
      */
     public int logicDeleteById(ID id) {
-        try {
-            T t = entityClass.newInstance();
-            ReflectUtils.setPropertyValue(Consts.RECORD_STATUS, Consts.RECORD_STATUS_INVALID, t);
-            return updateBySelective(t, Where.build());
-        } catch (Exception e) {
-            LOGGER.error("logicDelete error：{}", LogExceptionWapper.getStackTrace(e));
-            return 0;
-        }
-
+        Where where = Where.build().add(QueryType.EQUALS, primaryKey, id);
+        return logicDelete(where);
     }
 
     @Override
@@ -303,7 +297,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      *
      * @param queryResult 查询结果
      */
-    public void convertColumnsNameToPropertyName(List<Map<String, Object>> queryResult, String className) {
+    private void convertColumnsNameToPropertyName(List<Map<String, Object>> queryResult) {
         List<Map<String, Object>> propertyMapList = new ArrayList<>();
         queryResult.forEach(map -> {
             Map<String, Object> rowMap = new HashMap<>();
@@ -321,7 +315,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      *
      * @param property 属性集合
      */
-    public void convertPropertyNameToColumnName(Map<String, Object> property, String className) {
+    private void convertPropertyNameToColumnName(Map<String, Object> property) {
         Map<String, Object> columnMap = new HashMap<>();
         property.forEach((key, value) -> {
             columnMap.put(property2ColumnMap.get(key), value);
@@ -329,6 +323,5 @@ public class DmlMapper<ID, T> implements InitializingBean {
         property.clear();
         property.putAll(columnMap);
     }
-
 
 }
