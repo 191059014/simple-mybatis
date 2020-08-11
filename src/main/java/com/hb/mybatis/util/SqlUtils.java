@@ -2,6 +2,11 @@ package com.hb.mybatis.util;
 
 import com.hb.mybatis.sql.Where;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 常量
  *
@@ -117,6 +122,38 @@ public class SqlUtils {
             simpleSql += " limit " + SqlUtils.createSingleParamSql("startRow") + "," + SqlUtils.createSingleParamSql("pageSize");
         }
         return simpleSql;
+    }
+
+    /**
+     * 把数据库查询结果映射为实体类字段
+     *
+     * @param queryResult 查询结果
+     */
+    public static void convertColumnsNameToPropertyName(List<Map<String, Object>> queryResult, Map<String, String> column2PropertyMap) {
+        List<Map<String, Object>> propertyMapList = new ArrayList<>();
+        queryResult.forEach(map -> {
+            Map<String, Object> rowMap = new HashMap<>();
+            map.forEach((key, value) -> {
+                rowMap.put(column2PropertyMap.get(key), value);
+            });
+            propertyMapList.add(rowMap);
+        });
+        queryResult.clear();
+        queryResult.addAll(propertyMapList);
+    }
+
+    /**
+     * 把实体类字段映射为数据库查询结果
+     *
+     * @param property 属性集合
+     */
+    public static void convertPropertyNameToColumnName(Map<String, Object> property, Map<String, String> property2ColumnMap) {
+        Map<String, Object> columnMap = new HashMap<>();
+        property.forEach((key, value) -> {
+            columnMap.put(property2ColumnMap.get(key), value);
+        });
+        property.clear();
+        property.putAll(columnMap);
     }
 
 }

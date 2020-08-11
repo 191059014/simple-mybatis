@@ -4,6 +4,7 @@ import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.annotation.Id;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
+import com.hb.mybatis.helper.EntityMetaCache;
 import com.hb.mybatis.helper.QueryType;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PageResult;
@@ -12,6 +13,7 @@ import com.hb.mybatis.sql.Insert;
 import com.hb.mybatis.sql.Query;
 import com.hb.mybatis.sql.Update;
 import com.hb.mybatis.sql.Where;
+import com.hb.mybatis.util.SqlUtils;
 import com.hb.unic.logger.util.LogExceptionWapper;
 import com.hb.unic.util.tool.Assert;
 import com.hb.unic.util.util.CloneUtils;
@@ -52,14 +54,19 @@ public class DmlMapper<ID, T> implements InitializingBean {
     private BaseMapper baseMapper;
 
     /**
-     * 表名
+     * 实体类
      */
-    private String tableName;
+    private Class<T> entityClass;
 
     /**
      * 实体类
      */
-    private Class<T> entityClass;
+    private String entityName;
+
+    /**
+     * 表名
+     */
+    private String tableName;
 
     /**
      * 主键字段名
@@ -75,6 +82,25 @@ public class DmlMapper<ID, T> implements InitializingBean {
      * 数据库字段 -> 实体字段映射集合
      */
     private Map<String, String> column2PropertyMap = new HashMap<>(16);
+
+    /**
+     * 实体信息缓存
+     */
+    private static final Map<String, EntityMetaCache> CACHE = new HashMap<>();
+
+    /**
+     * 获取类信息
+     *
+     * @param className 类名
+     * @return 类信息
+     */
+    public static EntityMetaCache getEntityMeta(String className) {
+        EntityMetaCache entityMetaCache = CACHE.get(className);
+        if (entityMetaCache == null) {
+            LOGGER.info("{} is not managed", className);
+        }
+        return entityMetaCache;
+    }
 
     /**
      * 条件查询单条数据
@@ -258,19 +284,19 @@ public class DmlMapper<ID, T> implements InitializingBean {
          */
         Type type = getClass().getGenericSuperclass();
         if (type instanceof ParameterizedType) {
-            this.entityClass = ((Class) ((ParameterizedType) type).getActualTypeArguments()[0]);
+            entityClass = ((Class) ((ParameterizedType) type).getActualTypeArguments()[0]);
         } else {
-            throw new Exception("NoEntityType");
+            throw new Exception("NoEntityType: " + type);
         }
+        entityName = entityClass.getName();
         // 获取表名
-        Table table = this.entityClass.getAnnotation(Table.class);
-        if (table != null) {
-            this.tableName = table.value();
-        } else {
-            throw new Exception("EmptyTableName: " + this.entityClass.getName());
+        Table table = entityClass.getAnnotation(Table.class);
+        if (table == null) {
+            throw new Exception("EmptyTableName: " + entityName);
         }
-        Field[] allFields = ReflectUtils.getAllFields(this.entityClass);
-        Stream.of(allFields).forEach(field -> {
+        Field[] allFields = ReflectUtils.getAllFields(entityClass);
+        for (int i = 0; i < allFields.length; i++) {
+            Field field = allFields[i];
             String propertyName = field.getName();
             String columnName = field.getName();
             Column column = field.getAnnotation(Column.class);
@@ -280,16 +306,24 @@ public class DmlMapper<ID, T> implements InitializingBean {
             Id id = field.getAnnotation(Id.class);
             if (id != null) {
                 columnName = id.value();
-                this.primaryKey = columnName;
+                primaryKey = columnName;
             }
             // 字段映射
-            this.property2ColumnMap.put(propertyName, columnName);
+            property2ColumnMap.put(propertyName, columnName);
             // 字段映射
-            this.column2PropertyMap.put(columnName, propertyName);
-        });
-        if (this.primaryKey == null) {
-            throw new Exception("NonePrimaryKey: " + this.entityClass.getName());
+            column2PropertyMap.put(columnName, propertyName);
         }
+
+        Stream.of(allFields).forEach(field -> {
+
+        });
+        if (primaryKey == null) {
+            throw new Exception("NonePrimaryKey: " + entityName);
+        }
+        if (property2ColumnMap.isEmpty() || column2PropertyMap.isEmpty()) {
+            throw new Exception("NoneFieldEntity: " + entityName);
+        }
+        CACHE.put(entityName, new EntityMetaCache(entityName, table.value(), primaryKey, property2ColumnMap, column2PropertyMap));
     }
 
     /**
@@ -298,16 +332,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      * @param queryResult 查询结果
      */
     private void convertColumnsNameToPropertyName(List<Map<String, Object>> queryResult) {
-        List<Map<String, Object>> propertyMapList = new ArrayList<>();
-        queryResult.forEach(map -> {
-            Map<String, Object> rowMap = new HashMap<>();
-            map.forEach((key, value) -> {
-                rowMap.put(column2PropertyMap.get(key), value);
-            });
-            propertyMapList.add(rowMap);
-        });
-        queryResult.clear();
-        queryResult.addAll(propertyMapList);
+        SqlUtils.convertColumnsNameToPropertyName(queryResult, column2PropertyMap);
     }
 
     /**
@@ -316,12 +341,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
      * @param property 属性集合
      */
     private void convertPropertyNameToColumnName(Map<String, Object> property) {
-        Map<String, Object> columnMap = new HashMap<>();
-        property.forEach((key, value) -> {
-            columnMap.put(property2ColumnMap.get(key), value);
-        });
-        property.clear();
-        property.putAll(columnMap);
+        SqlUtils.convertPropertyNameToColumnName(property, property2ColumnMap);
     }
 
 }

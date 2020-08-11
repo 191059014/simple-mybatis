@@ -1,7 +1,9 @@
 package com.hb.mybatis.sql;
 
+import com.hb.mybatis.base.DmlMapper;
 import com.hb.mybatis.helper.QueryType;
 import com.hb.mybatis.helper.SinglePropertyBuilder;
+import com.hb.mybatis.util.SqlUtils;
 import com.hb.unic.util.util.CloneUtils;
 
 import java.util.HashMap;
@@ -41,7 +43,7 @@ public class Where {
      */
     public <T> Where add(T t) {
         Map<String, Object> allFields = CloneUtils.bean2Map(t);
-//        SqlUtils.convertPropertyNameToColumnName(allFields, t.getClass().getName());
+        SqlUtils.convertPropertyNameToColumnName(allFields, DmlMapper.getEntityMeta(t.getClass().getName()).getProperty2ColumnMap());
         allFields.forEach((key, value) -> add(QueryType.EQUALS, key, value));
         return this;
     }
