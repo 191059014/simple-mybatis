@@ -1,6 +1,5 @@
 package com.hb.mybatis.sql;
 
-import com.hb.mybatis.enums.QueryType;
 import com.hb.mybatis.util.SqlUtils;
 
 import java.util.Map;
@@ -12,6 +11,11 @@ import java.util.Map;
  * @since 2020/5/8 9:49
  */
 public class Query {
+
+    /**
+     * 结果
+     */
+    private String resultColumns;
 
     /**
      * 排序
@@ -31,48 +35,32 @@ public class Query {
     /**
      * where条件
      */
-    private Where where = Where.build();
+    private Where where = null;
+
+    public Query(Where where) {
+        if (where == null) {
+            where = Where.build();
+        }
+        this.where = where;
+    }
 
     /**
      * 构建QueryCondition对象
      *
      * @return Query
      */
-    public static Query build() {
-        return new Query();
+    public static Query build(Where where) {
+        return new Query(where);
     }
 
     /**
-     * 通过实体类添加条件
+     * 结果列表
      *
-     * @return Where
+     * @param resultColumns 列名集合，按逗号分开
+     * @return Query
      */
-    public <T> Query add(T t) {
-        where.add(t);
-        return this;
-    }
-
-    /**
-     * 增加sql语句
-     *
-     * @param sql sql语句
-     * @return Where
-     */
-    public Query sql(String sql) {
-        where.sql(sql);
-        return this;
-    }
-
-    /**
-     * 添加条件
-     *
-     * @param queryType  操作类型
-     * @param columnName 字段名
-     * @param value      值
-     * @return QueryCondition
-     */
-    public Query add(QueryType queryType, String columnName, Object value) {
-        where.add(queryType, columnName, value);
+    public Query resultColumns(String resultColumns) {
+        this.resultColumns = resultColumns;
         return this;
     }
 
@@ -124,30 +112,15 @@ public class Query {
      * @return sql
      */
     public String getSimpleSql(String tableName) {
-        return SqlUtils.getSimpleSql(tableName, where, sort, startRow, pageSize);
-    }
-
-    public String getSort() {
-        return sort;
-    }
-
-    public void setSort(String sort) {
-        this.sort = sort;
+        return SqlUtils.getSimpleSql(tableName, resultColumns, where, sort, startRow, pageSize);
     }
 
     public Integer getStartRow() {
         return startRow;
     }
 
-    public void setStartRow(Integer startRow) {
-        this.startRow = startRow;
-    }
-
     public Integer getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
 }

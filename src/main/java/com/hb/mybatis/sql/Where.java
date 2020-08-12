@@ -7,7 +7,12 @@ import com.hb.mybatis.util.SqlUtils;
 import com.hb.unic.util.util.CloneUtils;
 import com.hb.unic.util.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * where条件
@@ -44,7 +49,10 @@ public class Where {
     public <T> Where add(T t) {
         Map<String, Object> allFields = CloneUtils.bean2Map(t);
         SqlUtils.convertPropertyNameToColumnName(allFields, DmlMapper.getEntityMeta(t.getClass().getName()).getProperty2ColumnMap());
-        allFields.forEach((key, value) -> add(QueryType.EQUAL, key, value));
+        allFields.forEach((key, value) -> {
+            sqlList.add(SqlFactory.create(QueryType.EQUAL, key));
+            params.put(key, value);
+        });
         return this;
     }
 
@@ -54,8 +62,49 @@ public class Where {
      * @param sql sql语句
      * @return Where
      */
-    public Where sql(String sql) {
+    public Where sql(String sql, Map<String, Object> params) {
         sqlList.add(sql);
+        this.params.putAll(params);
+        return this;
+    }
+
+    /**
+     * 左括号
+     *
+     * @return Where
+     */
+    public Where leftBracket() {
+        sqlList.add(" ( ");
+        return this;
+    }
+
+    /**
+     * 左括号
+     *
+     * @return Where
+     */
+    public Where rightBracket() {
+        sqlList.add(" ) ");
+        return this;
+    }
+
+    /**
+     * and
+     *
+     * @return Where
+     */
+    public Where and() {
+        sqlList.add(" and ");
+        return this;
+    }
+
+    /**
+     * or
+     *
+     * @return Where
+     */
+    public Where or() {
+        sqlList.add(" or ");
         return this;
     }
 
@@ -69,9 +118,6 @@ public class Where {
      */
     public Where add(QueryType queryType, String columnName, Object value) {
         if (value != null && !"".equals(value.toString())) {
-            if (sqlList.size() > 0) {
-                sqlList.add(" and ");
-            }
             if (QueryType.IN.equals(queryType)) {
                 Collection collection = (Collection) value;
                 sqlList.add(SqlFactory.create(queryType, columnName, collection.size()));

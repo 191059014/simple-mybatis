@@ -23,18 +23,18 @@ public class Insert {
     public static String buildSelectiveSql(String tableName, Map<String, Object> property) {
         StringBuilder sb = new StringBuilder("insert into " + tableName);
         // 插入的列
-        StringBuilder cloumSb = new StringBuilder(SqlUtils.LEFT_SMALL_BRACKET);
+        StringBuilder cloumSb = new StringBuilder("(");
         // 插入的列对应的值
-        StringBuilder propertySb = new StringBuilder(" values " + SqlUtils.LEFT_SMALL_BRACKET);
+        StringBuilder propertySb = new StringBuilder(" values (");
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlUtils.COMMA);
-                propertySb.append(SqlUtils.createSingleParamSql(key)).append(SqlUtils.COMMA);
+                cloumSb.append(key).append(", ");
+                propertySb.append(SqlUtils.createSingleParamSql(key)).append(", ");
             }
         });
         // 去掉末尾的逗号
-        String cloumnSql = StringUtils.lastBefore(cloumSb.toString(),SqlUtils.COMMA) + ")";
-        String propertySql = StringUtils.lastBefore(propertySb.toString(),SqlUtils.COMMA) + ")";
+        String cloumnSql = StringUtils.lastBefore(cloumSb.toString(), ", ") + ")";
+        String propertySql = StringUtils.lastBefore(propertySb.toString(), ", ") + ")";
         sb.append(cloumnSql).append(propertySql);
         return sb.toString();
     }

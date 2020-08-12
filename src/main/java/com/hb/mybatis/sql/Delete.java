@@ -11,8 +11,8 @@ public class Delete {
     /**
      * 构建删除sql语句
      *
-     * @param tableName      表名
-     * @param where 条件集合
+     * @param tableName 表名
+     * @param where     条件集合
      * @return 删除sql语句
      */
     public static String buildSelectiveSql(String tableName, Where where) {

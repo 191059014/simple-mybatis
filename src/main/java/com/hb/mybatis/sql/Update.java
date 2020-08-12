@@ -15,9 +15,9 @@ public class Update {
     /**
      * 构建更新sql语句
      *
-     * @param tableName      表名
-     * @param property       字段集合
-     * @param where 条件集合
+     * @param tableName 表名
+     * @param property  字段集合
+     * @param where     条件集合
      * @return 更新sql语句
      */
     public static String buildSelectiveSql(String tableName, Map<String, Object> property, Where where) {
@@ -25,7 +25,7 @@ public class Update {
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append(SqlUtils.EQUALS).append(SqlUtils.createSingleColumnSql(key)).append(SqlUtils.COMMA);
+                cloumSb.append(key).append("=").append(SqlUtils.createSingleColumnSql(key)).append(", ");
             }
         });
         // 去掉最后一个逗号
