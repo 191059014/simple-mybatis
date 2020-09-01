@@ -210,7 +210,7 @@ public class DmlMapper<ID, T> implements InitializingBean {
     }
 
     /**
-     * 条件查询单条数据
+     * 通过ID更新
      *
      * @param id     id
      * @param entity 更新的信息
