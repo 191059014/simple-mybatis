@@ -1,6 +1,4 @@
-package com.hb.mybatis.sql;
-
-import com.hb.mybatis.util.SqlUtils;
+package com.hb.mybatis.helper;
 
 import java.util.Map;
 
@@ -25,7 +23,7 @@ public class Update {
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                cloumSb.append(key).append("=").append(SqlUtils.createSingleColumnSql(key)).append(", ");
+                cloumSb.append(key).append("=").append(SqlBuilder.createSingleColumnSql(key)).append(", ");
             }
         });
         // 去掉最后一个逗号

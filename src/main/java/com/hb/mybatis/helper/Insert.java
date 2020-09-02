@@ -1,6 +1,5 @@
-package com.hb.mybatis.sql;
+package com.hb.mybatis.helper;
 
-import com.hb.mybatis.util.SqlUtils;
 import com.hb.unic.util.util.StringUtils;
 
 import java.util.Map;
@@ -29,7 +28,7 @@ public class Insert {
         property.forEach((key, value) -> {
             if (value != null) {
                 cloumSb.append(key).append(", ");
-                propertySb.append(SqlUtils.createSingleParamSql(key)).append(", ");
+                propertySb.append(SqlBuilder.createSingleParamSql(key)).append(", ");
             }
         });
         // 去掉末尾的逗号

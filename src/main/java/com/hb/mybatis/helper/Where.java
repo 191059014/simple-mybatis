@@ -1,10 +1,6 @@
-package com.hb.mybatis.sql;
+package com.hb.mybatis.helper;
 
-import com.hb.mybatis.base.DmlMapper;
 import com.hb.mybatis.enums.QueryType;
-import com.hb.mybatis.helper.SqlFactory;
-import com.hb.mybatis.util.SqlUtils;
-import com.hb.unic.util.util.CloneUtils;
 import com.hb.unic.util.util.StringUtils;
 
 import java.util.ArrayList;
@@ -42,15 +38,19 @@ public class Where {
     }
 
     /**
-     * 通过实体类添加条件
+     * 添加多个查询条件
+     * <p>
+     * 1、key为数据库列名，value为值
+     * 2、所有条件均用equal操作符
+     * 3、字段与字段之间均用and
      *
+     * @param map 条件集合
      * @return Where
      */
-    public <T> Where add(T t) {
-        Map<String, Object> allFields = CloneUtils.bean2Map(t);
-        SqlUtils.convertPropertyNameToColumnName(allFields, DmlMapper.getEntityMeta(t.getClass().getName()).getProperty2ColumnMap());
-        allFields.forEach((key, value) -> {
-            sqlList.add(SqlFactory.create(QueryType.EQUAL, key));
+    public <T> Where addAll(Map<String, Object> map) {
+        map.forEach((key, value) -> {
+            and();
+            sqlList.add(SqlBuilder.create(QueryType.EQUAL, key));
             params.put(key, value);
         });
         return this;
@@ -109,18 +109,20 @@ public class Where {
     }
 
     /**
-     * 添加条件
+     * 添加单个查询条件
+     * <p>
+     * 1、字段与字段之间是用and还是or需要手动填写
      *
      * @param queryType  操作类型
      * @param columnName 字段名
      * @param value      值
      * @return QueryCondition
      */
-    public Where add(QueryType queryType, String columnName, Object value) {
+    public Where addSingle(QueryType queryType, String columnName, Object value) {
         if (value != null && !"".equals(value.toString())) {
             if (QueryType.IN.equals(queryType)) {
                 Collection collection = (Collection) value;
-                sqlList.add(SqlFactory.create(queryType, columnName, collection.size()));
+                sqlList.add(SqlBuilder.create(queryType, columnName, collection.size()));
                 Iterator iterator = collection.iterator();
                 int index = 0;
                 while (iterator.hasNext()) {
@@ -128,7 +130,7 @@ public class Where {
                     index++;
                 }
             } else {
-                sqlList.add(SqlFactory.create(queryType, columnName));
+                sqlList.add(SqlBuilder.create(queryType, columnName));
                 params.put(columnName, value);
             }
         }
@@ -142,7 +144,7 @@ public class Where {
      */
     public String getWhereSql() {
         if (sqlList.size() > 0) {
-            return " where " + StringUtils.joint(sqlList.toArray(new String[0]));
+            return " where 1=1 " + StringUtils.joint(sqlList.toArray(new String[0]));
         }
         return "";
     }

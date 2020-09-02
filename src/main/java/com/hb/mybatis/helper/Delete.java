@@ -1,4 +1,4 @@
-package com.hb.mybatis.sql;
+package com.hb.mybatis.helper;
 
 /**
  * 删除sql工具类

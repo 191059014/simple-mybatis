@@ -1,6 +1,7 @@
 package com.hb.mybatis.helper;
 
 import com.hb.mybatis.enums.QueryType;
+import com.hb.unic.util.tool.Assert;
 import com.hb.unic.util.util.StringUtils;
 
 /**
@@ -9,7 +10,27 @@ import com.hb.unic.util.util.StringUtils;
  * @author Mr.huang
  * @since 2020/5/8 11:14
  */
-public class SqlFactory {
+public class SqlBuilder {
+
+    /**
+     * 生成#{params.paramName}字符串
+     *
+     * @param paramName 参数名
+     * @return 字符串
+     */
+    public static String createSingleParamSql(String paramName) {
+        return StringUtils.joint("#{params.", paramName, "}");
+    }
+
+    /**
+     * 生成#{cloumns.columnName}字符串
+     *
+     * @param columnName 参数名
+     * @return 字符串
+     */
+    public static String createSingleColumnSql(String columnName) {
+        return StringUtils.joint("#{cloumns.", columnName, "}");
+    }
 
     /**
      * 构建单个查询条件
@@ -44,6 +65,7 @@ public class SqlFactory {
                 sql = like(columnName);
                 break;
             case IN:
+                Assert.notNull(objArr, "params is null");
                 sql = in(columnName, Integer.parseInt(objArr[0].toString()));
                 break;
             case BETWEEN_AND:
@@ -57,37 +79,37 @@ public class SqlFactory {
 
     // 等于
     public static String equal(String columnName) {
-        return StringUtils.joint(columnName, " = ", "#{params.", columnName, "}");
+        return StringUtils.joint(columnName, " = ", createSingleParamSql(columnName));
     }
 
     // 不等于
     public static String notEqual(String columnName) {
-        return StringUtils.joint(columnName, " != ", "#{params.", columnName, "}");
+        return StringUtils.joint(columnName, " != ", createSingleParamSql(columnName));
     }
 
     // 大于
     public static String maxThan(String columnName) {
-        return StringUtils.joint(columnName, " > ", "#{params.", columnName, "}");
+        return StringUtils.joint(columnName, " > ", createSingleParamSql(columnName));
     }
 
     // 小于
     public static String minThan(String columnName) {
-        return StringUtils.joint(columnName, " < ", "#{params.", columnName, "}");
+        return StringUtils.joint(columnName, " < ", createSingleParamSql(columnName));
     }
 
     // 大于等于
     public static String maxEqualThan(String columnName) {
-        return StringUtils.joint(columnName, " >= ", "#{params.", columnName, "}");
+        return StringUtils.joint(columnName, " >= ", createSingleParamSql(columnName));
     }
 
     // 小于等于
     public static String minEqualThan(String columnName) {
-        return StringUtils.joint(columnName, " <= ", "#{params.", columnName, "}");
+        return StringUtils.joint(columnName, " <= ", createSingleParamSql(columnName));
     }
 
     // 模糊匹配
     public static String like(String columnName) {
-        return StringUtils.joint(columnName, " like concat(#{params.", columnName, "},'%')");
+        return StringUtils.joint(columnName, " like concat(" + createSingleParamSql(columnName) + "'%')");
     }
 
     // 包含
@@ -95,7 +117,7 @@ public class SqlFactory {
         StringBuilder sb = new StringBuilder();
         sb.append(columnName).append("in (");
         for (int i = 0; i < length; i++) {
-            sb.append("#{params.").append(columnName + i).append("}");
+            sb.append(createSingleParamSql(columnName + i));
             if (i != length - 1) {
                 sb.append(",");
             }
@@ -106,7 +128,7 @@ public class SqlFactory {
 
     // 范围
     public static String betweenAnd(String columnName) {
-        return StringUtils.joint(columnName, " between #{params.", columnName + 0, "} and #{params.", columnName + 1, "}");
+        return StringUtils.joint(columnName, " between " + createSingleParamSql(columnName + 0) + " and " + createSingleParamSql(columnName + 1));
     }
 
 }
