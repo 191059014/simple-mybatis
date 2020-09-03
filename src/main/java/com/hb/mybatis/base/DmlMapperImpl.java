@@ -35,15 +35,15 @@ import java.util.Map;
  * ========== dml操作数据库类 ==========
  *
  * @author Mr.huang
- * @version com.hb.cp.dao.base.DmlMapper.java, v1.0
+ * @version com.hb.cp.dao.base.DmlMapperImpl.java, v1.0
  * @date 2019年10月12日 14时09分
  */
-public class DmlMapper<T> implements InitializingBean {
+public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
 
     /**
      * the constant logger
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DmlMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DmlMapperImpl.class);
 
     /**
      * mapper基类

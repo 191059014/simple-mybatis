@@ -1,24 +1,3 @@
-# simple-mybatis
-让简单的crud操作告别繁琐的sql（可以防sql注入），同时也支持自己写mybatis的xml文件。
-## 引入方法
-首先下载项目，然后依赖pom文件，配置扫描config/service-simplemybatis-context.xml。
-- 依赖pom文件
-```
-<dependency>
-    <groupId>com.hb.mybatis</groupId>
-    <artifactId>simple-mybatis</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-</dependency>
-```
-- 子类类继承DmlMapperImpl类，接口也继承IDmlMapper接口，就拥有了DmlMapper类所有方法
-```
-@Service
-public class SysUserServiceImpl extends DmlMapperImpl<SysUserDO> implements ISysUserService {}
-
-public interface ISysUserService extends IDmlMapper<SysUserDO> {}
-```
-IDmlMapper接口方法如下:  
-```
 package com.hb.mybatis.base;
 
 import com.hb.mybatis.helper.Where;
@@ -201,10 +180,3 @@ public interface IDmlMapper<T> {
 }
 
     
-```
-## 实体类加@Table，@Column，@Id注解，配置表名、字段映射、主键
-其中，@Table和@Id注解是必须的，要设置表名和id主键；  
-
-## 其他
-更多实用的方法、小工具，请重点查看DmlMapper，SqlBuilder，Where，Delete，Insert，Update等类。
-
