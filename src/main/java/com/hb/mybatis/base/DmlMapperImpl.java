@@ -230,7 +230,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
         Map<String, Object> property = CloneUtils.bean2Map(entity);
         Map<String, Object> columnMap = convertPropertyNameToColumnName(property);
         String sqlStatement = Insert.buildSelectiveSql(this.tableName, columnMap);
-        return baseMapper.insertSelective(sqlStatement, property);
+        return baseMapper.insertSelective(sqlStatement, columnMap);
     }
 
     /**
@@ -390,14 +390,13 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
             resultColumnsSql = resultColumns;
         }
         String simpleSql = StringUtils.joint("select ", resultColumnsSql, " from ", tableName);
-        if (where != null) {
-            simpleSql += where.getWhereSql();
-        }
-        if (sort != null && !"".equals(sort)) {
-            simpleSql += " order by " + sort;
-        }
-        if (startRow != null && startRow > 0 && pageSize != null && pageSize > 0) {
+        simpleSql += where == null ? "" : where.getWhereSql();
+        simpleSql += StringUtils.hasText(sort) ? " order by " + sort : "";
+        if (startRow != null && pageSize != null) {
             simpleSql += " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize");
+            if (where != null) {
+                where.addSingleParam("startRow", startRow).addSingleParam("pageSize", pageSize);
+            }
         }
         return simpleSql;
     }

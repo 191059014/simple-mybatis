@@ -49,10 +49,26 @@ public class Where {
      */
     public <T> Where addAll(Map<String, Object> map) {
         map.forEach((key, value) -> {
-            and();
-            sqlList.add(SqlBuilder.create(QueryType.EQUAL, key));
-            params.put(key, value);
+            if (value != null && !"".equals(value.toString())) {
+                if (sqlList.size() > 0) {
+                    and();
+                }
+                sqlList.add(SqlBuilder.create(QueryType.EQUAL, key));
+                params.put(key, value);
+            }
         });
+        return this;
+    }
+
+    /**
+     * 添加单个条件
+     *
+     * @param key   名称
+     * @param value 值
+     * @return 当前对象
+     */
+    public Where addSingleParam(String key, Object value) {
+        params.put(key, value);
         return this;
     }
 
@@ -144,7 +160,7 @@ public class Where {
      */
     public String getWhereSql() {
         if (sqlList.size() > 0) {
-            return " where 1=1 " + StringUtils.joint(sqlList.toArray(new String[0]));
+            return " where " + StringUtils.joint(sqlList.toArray(new String[0]));
         }
         return "";
     }
