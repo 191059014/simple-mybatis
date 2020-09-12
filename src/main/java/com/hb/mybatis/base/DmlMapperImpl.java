@@ -418,7 +418,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
             String columnName = propertyName;
             if (column != null) {
                 String value = column.value();
-                columnName = !"".equals(columnName) ? value : columnName;
+                columnName = !"".equals(value) ? value : columnName;
                 if (column.isPk()) {
                     pk = columnName;
                 }
