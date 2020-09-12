@@ -8,7 +8,7 @@ package com.hb.mybatis.common;
 public class Consts {
 
     // 数据记录状态
-    public static final String RECORD_STATUS = "recordStatus";
+    public static final String RECORD_STATUS = "record_status";
 
     // 数据记录状态-有效
     public static final Integer RECORD_STATUS_VALID = 1;

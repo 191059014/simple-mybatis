@@ -133,7 +133,7 @@ public interface IDmlMapper<T, PK, BK> {
      * @param entity 实体类对象
      * @return 插入行数
      */
-    int insertBySelective(T entity);
+    int insert(T entity);
 
     /**
      * 选择性更新
@@ -142,7 +142,7 @@ public interface IDmlMapper<T, PK, BK> {
      * @param where  条件
      * @return 更新行数
      */
-    int updateBySelective(T entity, Where where);
+    int update(T entity, Where where);
 
     /**
      * 通过ID更新
@@ -169,7 +169,7 @@ public interface IDmlMapper<T, PK, BK> {
      * @return 删除行数
      * @see com.hb.mybatis.base.IDmlMapper#logicDelete(com.hb.mybatis.helper.Where)
      */
-    int deleteBySelective(Where where);
+    int delete(Where where);
 
     /**
      * 通过主键删除（物理删除）

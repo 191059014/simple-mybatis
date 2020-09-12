@@ -251,7 +251,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return 插入行数
      */
     @Override
-    public int insertBySelective(T entity) {
+    public int insert(T entity) {
         Assert.notNull(entity, "entity of insert is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
         Map<String, Object> columnMap = convertPropertyNameToColumnName(property);
@@ -267,7 +267,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return 更新行数
      */
     @Override
-    public int updateBySelective(T entity, Where where) {
+    public int update(T entity, Where where) {
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
         Assert.notNull(entity, "entity is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
@@ -288,7 +288,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.notNull(id, "id is null");
         Assert.notNull(entity, "entity of update is null");
         Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
-        return updateBySelective(entity, where);
+        return update(entity, where);
     }
 
     /**
@@ -304,7 +304,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.notNull(businessKey, "businessKey is null");
         Assert.notNull(entity, "entity of update is null");
         Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
-        return updateBySelective(entity, where);
+        return update(entity, where);
     }
 
     /**
@@ -315,7 +315,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @see com.hb.mybatis.base.IDmlMapper#logicDelete(com.hb.mybatis.helper.Where)
      */
     @Override
-    public int deleteBySelective(Where where) {
+    public int delete(Where where) {
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions of delete is empty");
         String sqlStatement = Delete.buildSelectiveSql(this.tableName, where);
         return baseMapper.deleteBySelective(sqlStatement, where.getWhereParams());
@@ -332,7 +332,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int deleteByPk(PK id) {
         Assert.notNull(id, "id is null");
         Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
-        return deleteBySelective(where);
+        return delete(where);
     }
 
     /**
@@ -347,7 +347,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
         Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
-        return deleteBySelective(where);
+        return delete(where);
     }
 
     /**
@@ -362,7 +362,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         try {
             T t = entityClass.newInstance();
             ReflectUtils.setPropertyValue(Consts.RECORD_STATUS, Consts.RECORD_STATUS_INVALID, t);
-            return updateBySelective(t, where);
+            return update(t, where);
         } catch (Exception e) {
             LOGGER.error("logicDelete error：{}", LogExceptionWapper.getStackTrace(e));
             return 0;

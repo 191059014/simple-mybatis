@@ -1,5 +1,6 @@
 package com.hb.mybatis.helper;
 
+import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
 import com.hb.unic.util.util.StringUtils;
 
@@ -154,12 +155,13 @@ public class Where {
     }
 
     /**
-     * 通过queryList来生成sql
+     * 通过sqlList来生成sql
      *
      * @return sql
      */
     public String getWhereSql() {
         if (sqlList.size() > 0) {
+            this.and().addSingle(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID);
             return " where " + StringUtils.joint(sqlList.toArray(new String[0]));
         }
         return "";
