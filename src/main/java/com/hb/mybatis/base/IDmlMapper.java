@@ -11,15 +11,23 @@ import java.util.Map;
  *
  * @version v0.1, 2020/9/2 17:47, create by huangbiao.
  */
-public interface IDmlMapper<T> {
+public interface IDmlMapper<T, PK, BK> {
 
     /**
-     * 条件查询单条数据
+     * 根据数据库主键查询
      *
-     * @param id id集合
+     * @param id 数据库主键
      * @return 单条数据
      */
-    T selectById(Object id);
+    T selectByPk(PK id);
+
+    /**
+     * 根据业务主键查询
+     *
+     * @param businessKey 业务主键
+     * @return 单条数据
+     */
+    T selectByBk(BK businessKey);
 
     /**
      * 条件查询单条数据
@@ -143,26 +151,46 @@ public interface IDmlMapper<T> {
      * @param entity 更新的信息
      * @return 单条数据
      */
-    int updateById(Object id, T entity);
+    int updateByPk(PK id, T entity);
 
     /**
-     * 选择性删除，物理删除，逻辑删除请使用logicDelete
+     * 通过业务主键更新
+     *
+     * @param businessKey id
+     * @param entity      需要更新的信息
+     * @return 影响行数
+     */
+    int updateByBk(BK businessKey, T entity);
+
+    /**
+     * 条件删除（物理删除）
      *
      * @param where 条件
      * @return 删除行数
+     * @see com.hb.mybatis.base.IDmlMapper#logicDelete(com.hb.mybatis.helper.Where)
      */
     int deleteBySelective(Where where);
 
     /**
-     * 条件查询单条数据
+     * 通过主键删除（物理删除）
      *
      * @param id id集合
      * @return 单条数据
+     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByPk(java.lang.Object)
      */
-    int deleteById(Object id);
+    int deleteByPk(PK id);
 
     /**
-     * 逻辑删除
+     * 通过业务主键删除（物理删除）
+     *
+     * @param businessKey 业务主键
+     * @return 单条数据
+     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByBk(java.lang.Object)
+     */
+    int deleteByBk(BK businessKey);
+
+    /**
+     * 条件删除（逻辑删除）
      *
      * @param where 条件
      * @return 删除行数
@@ -170,12 +198,20 @@ public interface IDmlMapper<T> {
     int logicDelete(Where where);
 
     /**
-     * 逻辑删除
+     * 通过主键删除（逻辑删除）
      *
      * @param id id主键
      * @return 删除行数
      */
-    int logicDeleteById(Object id);
+    int logicDeleteByPk(PK id);
+
+    /**
+     * 通过业务主键删除（逻辑删除）
+     *
+     * @param businessKey 业务主键
+     * @return 删除行数
+     */
+    int logicDeleteByBk(BK businessKey);
 
 }
 

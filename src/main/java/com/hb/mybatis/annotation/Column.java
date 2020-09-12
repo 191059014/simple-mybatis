@@ -18,10 +18,26 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
 
+    /**
+     * 列名
+     */
     @AliasFor("columnName")
     String value() default "";
 
+    /**
+     * 列名
+     */
     @AliasFor("value")
     String columnName() default "";
+
+    /**
+     * 是否是数据库主键
+     */
+    boolean isPk() default false;
+
+    /**
+     * 是否是业务主键
+     */
+    boolean isBk() default false;
 
 }

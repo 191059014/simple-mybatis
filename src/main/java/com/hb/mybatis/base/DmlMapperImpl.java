@@ -1,15 +1,10 @@
 package com.hb.mybatis.base;
 
 import com.hb.mybatis.annotation.Column;
-import com.hb.mybatis.annotation.Id;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
-import com.hb.mybatis.helper.Delete;
-import com.hb.mybatis.helper.Insert;
-import com.hb.mybatis.helper.SqlBuilder;
-import com.hb.mybatis.helper.Update;
-import com.hb.mybatis.helper.Where;
+import com.hb.mybatis.helper.*;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.mybatis.model.PageResult;
 import com.hb.unic.logger.util.LogExceptionWapper;
@@ -38,7 +33,7 @@ import java.util.Map;
  * @version com.hb.cp.dao.base.DmlMapperImpl.java, v1.0
  * @date 2019年10月12日 14时09分
  */
-public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
+public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T, PK, BK> {
 
     /**
      * the constant logger
@@ -64,7 +59,12 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
     /**
      * 主键字段名
      */
-    private String primaryKey;
+    private String pk;
+
+    /**
+     * 业务主键字段名
+     */
+    private String bk;
 
     /**
      * 实体字段 -> 数据库字段映射集合
@@ -77,13 +77,28 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
     private Map<String, String> column2PropertyMap = new HashMap<>(16);
 
     /**
-     * 条件查询单条数据
+     * 根据数据库主键查询
      *
-     * @param id id集合
+     * @param id 数据库主键
      * @return 单条数据
      */
-    public T selectById(Object id) {
-        Where where = Where.build().addSingle(QueryType.EQUAL, primaryKey, id);
+    @Override
+    public T selectByPk(PK id) {
+        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
+        List<T> tList = this.selectList(null, where, null, null, null);
+        return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
+    }
+
+    /**
+     * 根据业务主键查询
+     *
+     * @param businessKey 业务主键
+     * @return 单条数据
+     */
+    @Override
+    public T selectByBk(BK businessKey) {
+        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -94,6 +109,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
      * @return 单条数据
      */
+    @Override
     public T selectOne(Object whereCondition) {
         List<T> tList = this.selectList(null, whereCondition, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
@@ -105,6 +121,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
      * @return 数据集合
      */
+    @Override
     public List<T> selectList(Object whereCondition) {
         return selectList(null, whereCondition, null, null, null);
     }
@@ -116,6 +133,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param sort           排序
      * @return 数据集合
      */
+    @Override
     public List<T> selectList(Object whereCondition, String sort) {
         return selectList(null, whereCondition, sort, null, null);
     }
@@ -129,6 +147,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param pageSize       每页条数
      * @return 数据集合
      */
+    @Override
     public List<T> selectList(Object whereCondition, String sort, Integer startRow, Integer pageSize) {
         return selectList(null, whereCondition, sort, startRow, pageSize);
     }
@@ -143,6 +162,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param pageSize       每页条数
      * @return 数据集合
      */
+    @Override
     public List<T> selectList(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize) {
         Where where = getWhereFromObject(whereCondition);
         String simpleSql = getSimpleSql(resultColumns, where, sort, startRow, pageSize);
@@ -157,6 +177,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
      * @return 总条数
      */
+    @Override
     public int selectCount(Object whereCondition) {
         Where where = getWhereFromObject(whereCondition);
         return baseMapper.selectCount(getCountSql(where), where == null ? null : where.getWhereParams());
@@ -170,6 +191,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param pageSize       每页条数
      * @return 分页集合
      */
+    @Override
     public PageResult<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize) {
         return selectPages(null, whereCondition, null, startRow, pageSize);
     }
@@ -183,6 +205,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param pageSize       每页条数
      * @return 分页集合
      */
+    @Override
     public PageResult<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize) {
         return selectPages(null, whereCondition, sort, startRow, pageSize);
     }
@@ -197,6 +220,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param pageSize       每页条数
      * @return 分页集合
      */
+    @Override
     public PageResult<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize) {
         Assert.notNull(sort, "startRow is null");
         Assert.notNull(sort, "pageSize is null");
@@ -213,8 +237,9 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param where                   where条件
      * @return 结果集合
      */
+    @Override
     public List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where) {
-        Assert.hasText(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
+        Assert.notHasText(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
         String fullSql = sqlStatementBeforeWhere + where == null ? "" : where.getWhereSql();
         return baseMapper.dynamicSelect(fullSql, where == null ? null : where.getWhereParams());
     }
@@ -225,6 +250,7 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param entity 实体类对象
      * @return 插入行数
      */
+    @Override
     public int insertBySelective(T entity) {
         Assert.notNull(entity, "entity of insert is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
@@ -240,9 +266,10 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param where  条件
      * @return 更新行数
      */
+    @Override
     public int updateBySelective(T entity, Where where) {
-        Assert.notNull(entity, "entity of update is null");
-        Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions of update is empty");
+        Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
+        Assert.notNull(entity, "entity is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
         Map<String, Object> columnMap = convertPropertyNameToColumnName(property);
         String sqlStatement = Update.buildSelectiveSql(this.tableName, columnMap, where);
@@ -256,18 +283,38 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
      * @param entity 更新的信息
      * @return 单条数据
      */
-    public int updateById(Object id, T entity) {
+    @Override
+    public int updateByPk(PK id, T entity) {
+        Assert.notNull(id, "id is null");
         Assert.notNull(entity, "entity of update is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, primaryKey, id);
+        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
         return updateBySelective(entity, where);
     }
 
     /**
-     * 选择性删除，物理删除，逻辑删除请使用logicDelete
+     * 通过业务主键更新
+     *
+     * @param businessKey id
+     * @param entity      需要更新的信息
+     * @return 影响行数
+     */
+    @Override
+    public int updateByBk(BK businessKey, T entity) {
+        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Assert.notNull(businessKey, "businessKey is null");
+        Assert.notNull(entity, "entity of update is null");
+        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
+        return updateBySelective(entity, where);
+    }
+
+    /**
+     * 条件删除（物理删除）
      *
      * @param where 条件
      * @return 删除行数
+     * @see com.hb.mybatis.base.IDmlMapper#logicDelete(com.hb.mybatis.helper.Where)
      */
+    @Override
     public int deleteBySelective(Where where) {
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions of delete is empty");
         String sqlStatement = Delete.buildSelectiveSql(this.tableName, where);
@@ -275,23 +322,43 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
     }
 
     /**
-     * 条件查询单条数据
+     * 通过主键删除（物理删除）
      *
      * @param id id集合
      * @return 单条数据
+     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByPk(java.lang.Object)
      */
-    public int deleteById(Object id) {
-        Where where = Where.build().addSingle(QueryType.EQUAL, primaryKey, id);
+    @Override
+    public int deleteByPk(PK id) {
+        Assert.notNull(id, "id is null");
+        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
         return deleteBySelective(where);
     }
 
     /**
-     * 逻辑删除
+     * 通过业务主键删除（物理删除）
+     *
+     * @param businessKey 业务主键
+     * @return 单条数据
+     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByBk(java.lang.Object)
+     */
+    @Override
+    public int deleteByBk(BK businessKey) {
+        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Assert.notNull(businessKey, "businessKey is null");
+        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
+        return deleteBySelective(where);
+    }
+
+    /**
+     * 条件删除（逻辑删除）
      *
      * @param where 条件
      * @return 删除行数
      */
+    @Override
     public int logicDelete(Where where) {
+        Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
         try {
             T t = entityClass.newInstance();
             ReflectUtils.setPropertyValue(Consts.RECORD_STATUS, Consts.RECORD_STATUS_INVALID, t);
@@ -304,13 +371,29 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
     }
 
     /**
-     * 逻辑删除
+     * 通过主键删除（逻辑删除）
      *
      * @param id id主键
      * @return 删除行数
      */
-    public int logicDeleteById(Object id) {
-        Where where = Where.build().addSingle(QueryType.EQUAL, primaryKey, id);
+    @Override
+    public int logicDeleteByPk(PK id) {
+        Assert.notNull(id, "id is null");
+        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
+        return logicDelete(where);
+    }
+
+    /**
+     * 通过业务主键删除（逻辑删除）
+     *
+     * @param businessKey 业务主键
+     * @return 删除行数
+     */
+    @Override
+    public int logicDeleteByBk(BK businessKey) {
+        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Assert.notNull(businessKey, "businessKey is null");
+        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
         return logicDelete(where);
     }
 
@@ -332,18 +415,23 @@ public class DmlMapperImpl<T> implements InitializingBean, IDmlMapper<T> {
         for (Field field : allFields) {
             String propertyName = field.getName();
             Column column = field.getAnnotation(Column.class);
-            String columnName = column != null && !"".equals(column.value()) ? column.value() : field.getName();
-            Id id = field.getAnnotation(Id.class);
-            if (id != null) {
-                columnName = !"".equals(id.value()) ? id.value() : columnName;
-                primaryKey = columnName;
+            String columnName = propertyName;
+            if (column != null) {
+                String value = column.value();
+                columnName = !"".equals(columnName) ? value : columnName;
+                if (column.isPk()) {
+                    pk = columnName;
+                }
+                if (column.isBk()) {
+                    bk = columnName;
+                }
             }
             // 字段映射
             property2ColumnMap.put(propertyName, columnName);
             // 字段映射
             column2PropertyMap.put(columnName, propertyName);
         }
-        Assert.notNull(primaryKey, "NoPrimaryKey: " + entityClass.getName());
+        Assert.notHasText(pk, "NoPrimaryKey: " + entityClass.getName());
         Assert.ifTrueThrows(property2ColumnMap.isEmpty() || column2PropertyMap.isEmpty(), "NoFieldEntity: " + entityClass.getName());
     }
 
