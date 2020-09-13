@@ -115,7 +115,7 @@ public class SqlBuilder {
     // 包含
     public static String in(String columnName, int length) {
         StringBuilder sb = new StringBuilder();
-        sb.append(columnName).append("in (");
+        sb.append(columnName).append(" in (");
         for (int i = 0; i < length; i++) {
             sb.append(createSingleParamSql(columnName + i));
             if (i != length - 1) {

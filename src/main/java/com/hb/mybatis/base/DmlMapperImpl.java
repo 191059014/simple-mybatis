@@ -240,7 +240,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where) {
         Assert.notHasText(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
-        String fullSql = sqlStatementBeforeWhere + where == null ? "" : where.getWhereSql();
+        String fullSql = sqlStatementBeforeWhere + (where == null ? "" : where.getWhereSql());
         return baseMapper.dynamicSelect(fullSql, where == null ? null : where.getWhereParams());
     }
 
