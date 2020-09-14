@@ -35,7 +35,10 @@ public class Where {
      * @return Where
      */
     public static Where build() {
-        return new Where();
+        Where where = new Where();
+        where.sql(" where ");
+        where.sql(SqlBuilder.create(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID));
+        return where;
     }
 
     /**
@@ -51,9 +54,7 @@ public class Where {
     public <T> Where addAll(Map<String, Object> map) {
         map.forEach((key, value) -> {
             if (value != null && !"".equals(value.toString())) {
-                if (sqlList.size() > 0) {
-                    and();
-                }
+                and();
                 sqlList.add(SqlBuilder.create(QueryType.EQUAL, key));
                 params.put(key, value);
             }
@@ -79,9 +80,21 @@ public class Where {
      * @param sql sql语句
      * @return Where
      */
+    public Where sql(String sql) {
+        return sql(sql, null);
+    }
+
+    /**
+     * 增加sql语句
+     *
+     * @param sql sql语句
+     * @return Where
+     */
     public Where sql(String sql, Map<String, Object> params) {
         sqlList.add(sql);
-        this.params.putAll(params);
+        if (params != null && params.size() > 0) {
+            this.params.putAll(params);
+        }
         return this;
     }
 
@@ -160,13 +173,7 @@ public class Where {
      * @return sql
      */
     public String getWhereSql() {
-        if (sqlList.size() > 0) {
-            if (!sqlList.contains(SqlBuilder.create(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID))) {
-                this.and().addSingle(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID);
-            }
-            return " where " + StringUtils.joint(sqlList.toArray(new String[0]));
-        }
-        return "";
+        return sqlList.size() > 0 ? StringUtils.joint(sqlList.toArray(new String[0])) : "";
     }
 
     /**
