@@ -1,7 +1,7 @@
 package com.hb.mybatis.base;
 
 import com.hb.mybatis.helper.Where;
-import com.hb.mybatis.model.PageResult;
+import com.hb.unic.util.util.Pagination;
 
 import java.util.List;
 import java.util.Map;
@@ -93,7 +93,7 @@ public interface IDmlMapper<T, PK, BK> {
      * @param pageSize       每页条数
      * @return 分页集合
      */
-    PageResult<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize);
 
     /**
      * 分页查询集合
@@ -104,7 +104,7 @@ public interface IDmlMapper<T, PK, BK> {
      * @param pageSize       每页条数
      * @return 分页集合
      */
-    PageResult<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 分页查询集合
@@ -116,7 +116,7 @@ public interface IDmlMapper<T, PK, BK> {
      * @param pageSize       每页条数
      * @return 分页集合
      */
-    PageResult<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 自定义sql语句动态查询，要求写全where前面的sql

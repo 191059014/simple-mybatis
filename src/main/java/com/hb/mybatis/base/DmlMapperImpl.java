@@ -4,12 +4,16 @@ import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
-import com.hb.mybatis.helper.*;
+import com.hb.mybatis.helper.Delete;
+import com.hb.mybatis.helper.Insert;
+import com.hb.mybatis.helper.SqlBuilder;
+import com.hb.mybatis.helper.Update;
+import com.hb.mybatis.helper.Where;
 import com.hb.mybatis.mapper.BaseMapper;
-import com.hb.mybatis.model.PageResult;
 import com.hb.unic.logger.util.LogExceptionWapper;
 import com.hb.unic.util.tool.Assert;
 import com.hb.unic.util.util.CloneUtils;
+import com.hb.unic.util.util.Pagination;
 import com.hb.unic.util.util.ReflectUtils;
 import com.hb.unic.util.util.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -192,7 +196,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return 分页集合
      */
     @Override
-    public PageResult<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize) {
+    public Pagination<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize) {
         return selectPages(null, whereCondition, null, startRow, pageSize);
     }
 
@@ -206,7 +210,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return 分页集合
      */
     @Override
-    public PageResult<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize) {
+    public Pagination<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize) {
         return selectPages(null, whereCondition, sort, startRow, pageSize);
     }
 
@@ -221,13 +225,13 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return 分页集合
      */
     @Override
-    public PageResult<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize) {
+    public Pagination<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize) {
         Assert.notNull(sort, "startRow is null");
         Assert.notNull(sort, "pageSize is null");
         Where where = getWhereFromObject(whereCondition);
         int count = selectCount(where);
         List<T> list = selectList(resultColumns, where, sort, startRow, pageSize);
-        return new PageResult<>(list, count, startRow, pageSize);
+        return new Pagination<>(list, count, startRow, pageSize);
     }
 
     /**

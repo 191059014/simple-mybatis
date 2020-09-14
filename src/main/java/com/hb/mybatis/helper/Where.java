@@ -161,7 +161,9 @@ public class Where {
      */
     public String getWhereSql() {
         if (sqlList.size() > 0) {
-            this.and().addSingle(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID);
+            if (!sqlList.contains(SqlBuilder.create(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID))) {
+                this.and().addSingle(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID);
+            }
             return " where " + StringUtils.joint(sqlList.toArray(new String[0]));
         }
         return "";
