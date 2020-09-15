@@ -87,7 +87,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public T selectByPk(PK id) {
-        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
+        Where where = Where.build().add(QueryType.EQUAL, pk, id);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -101,7 +101,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public T selectByBk(BK businessKey) {
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
-        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -236,15 +236,27 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     /**
      * 自定义sql语句动态查询，要求写全where前面的sql
      *
-     * @param sqlStatementBeforeWhere where前面的sql语句
-     * @param where                   where条件
+     * @param sqlStatement where前面的sql语句
+     * @param conditionMap 查询条件值集合
      * @return 结果集合
      */
     @Override
-    public List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where) {
-        Assert.notHasText(sqlStatementBeforeWhere, "sqlStatementBeforeWhere is null");
-        String fullSql = sqlStatementBeforeWhere + (where == null ? "" : where.getWhereSql());
-        return baseMapper.dynamicSelect(fullSql, where == null ? null : where.getWhereParams());
+    public List<Map<String, Object>> customSelect(String sqlStatement, Map<String, Object> conditionMap) {
+        Assert.notHasText(sqlStatement, "sqlStatementBeforeWhere is null");
+        return baseMapper.dynamicSelect(sqlStatement, conditionMap);
+    }
+
+    /**
+     * 自定义sql语句动态查询，要求写全where前面的sql
+     *
+     * @param sqlStatement where前面的sql语句
+     * @param conditionMap 查询条件值集合
+     * @param tClass       将结果集转换的类
+     * @return T
+     */
+    @Override
+    public List<T> customSelect(String sqlStatement, Map<String, Object> conditionMap, Class<T> tClass) {
+        return CloneUtils.maps2Beans(customSelect(sqlStatement, conditionMap), tClass);
     }
 
     /**
@@ -290,7 +302,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int updateByPk(PK id, T entity) {
         Assert.notNull(id, "id is null");
         Assert.notNull(entity, "entity of update is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
+        Where where = Where.build().add(QueryType.EQUAL, pk, id);
         return update(entity, where);
     }
 
@@ -306,7 +318,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
         Assert.notNull(entity, "entity of update is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
         return update(entity, where);
     }
 
@@ -334,7 +346,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public int deleteByPk(PK id) {
         Assert.notNull(id, "id is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
+        Where where = Where.build().add(QueryType.EQUAL, pk, id);
         return delete(where);
     }
 
@@ -349,7 +361,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int deleteByBk(BK businessKey) {
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
         return delete(where);
     }
 
@@ -382,7 +394,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public int logicDeleteByPk(PK id) {
         Assert.notNull(id, "id is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, pk, id);
+        Where where = Where.build().add(QueryType.EQUAL, pk, id);
         return logicDelete(where);
     }
 
@@ -396,7 +408,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int logicDeleteByBk(BK businessKey) {
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
-        Where where = Where.build().addSingle(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
         return logicDelete(where);
     }
 
@@ -477,7 +489,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     private String getSimpleSql(String resultColumns, Where where, String sort, Integer startRow, Integer pageSize) {
         if (where != null) {
-            where.addSingleParam("startRow", startRow).addSingleParam("pageSize", pageSize);
+            where.addParam("startRow", startRow).addParam("pageSize", pageSize);
         }
         return SqlBuilder.getSimpleSql(tableName, resultColumns, where == null ? "" : where.getWhereSql(), sort, startRow, pageSize);
     }

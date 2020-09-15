@@ -3,7 +3,6 @@ package com.hb.mybatis.helper;
 import com.hb.mybatis.SimpleMybatisContext;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
-import com.hb.unic.util.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,7 +68,7 @@ public class Where {
      * @param value 值
      * @return 当前对象
      */
-    public Where addSingleParam(String key, Object value) {
+    public Where addParam(String key, Object value) {
         params.put(key, value);
         return this;
     }
@@ -148,7 +147,7 @@ public class Where {
      * @param value      值
      * @return QueryCondition
      */
-    public Where addSingle(QueryType queryType, String columnName, Object value) {
+    public Where add(QueryType queryType, String columnName, Object value) {
         if (value != null && !"".equals(value.toString())) {
             if (QueryType.IN.equals(queryType)) {
                 Collection collection = (Collection) value;
@@ -173,18 +172,22 @@ public class Where {
      * @return sql
      */
     public String getWhereSql() {
-        StringBuilder fullSql = new StringBuilder();
+        StringBuilder fullSql = new StringBuilder(" where ");
         if (sqlList.size() > 0) {
-            fullSql.append(" where ");
-            if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
-                fullSql.append(SqlBuilder.create(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID));
-                fullSql.append(" and ");
-                this.addSingleParam(Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID);
-            }
             for (String s : sqlList) {
                 fullSql.append(s);
             }
+            if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
+                fullSql.append(" and record_status = 1 ");
+            }
+        } else {
+            if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
+                fullSql.append(" record_status = 1 ");
+            } else {
+                fullSql.append(" 1=1 ");
+            }
         }
+
         return fullSql.toString();
     }
 

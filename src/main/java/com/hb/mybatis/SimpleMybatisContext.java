@@ -33,7 +33,7 @@ public class SimpleMybatisContext implements InitializingBean {
     /**
      * 使用record_status字段
      */
-    @Value("${simple.mybatis.userRecordStatus:true}")
+    @Value("${simple.mybatis.useRecordStatus:true}")
     private String useRecordStatus;
 
     @Override

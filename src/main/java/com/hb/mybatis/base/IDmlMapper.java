@@ -121,11 +121,21 @@ public interface IDmlMapper<T, PK, BK> {
     /**
      * 自定义sql语句动态查询，要求写全where前面的sql
      *
-     * @param sqlStatementBeforeWhere where前面的sql语句
-     * @param where                   where条件
+     * @param sqlStatement where前面的sql语句
+     * @param conditionMap 查询条件取值集合
      * @return 结果集合
      */
-    List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where);
+    List<Map<String, Object>> customSelect(String sqlStatement, Map<String, Object> conditionMap);
+
+    /**
+     * 自定义sql语句动态查询，要求写全where前面的sql
+     *
+     * @param sqlStatement where前面的sql语句
+     * @param conditionMap 查询条件值集合
+     * @param tClass       将结果集转换的类
+     * @return T
+     */
+    List<T> customSelect(String sqlStatement, Map<String, Object> conditionMap, Class<T> tClass);
 
     /**
      * 选择性插入
