@@ -288,7 +288,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Map<String, Object> property = CloneUtils.bean2Map(entity);
         Map<String, Object> columnMap = convertPropertyNameToColumnName(property);
         String sqlStatement = Update.buildSelectiveSql(this.tableName, columnMap, where);
-        return baseMapper.updateBySelective(sqlStatement, property, where.getWhereParams());
+        return baseMapper.updateBySelective(sqlStatement, columnMap, where.getWhereParams());
     }
 
     /**
@@ -376,7 +376,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
         try {
             T t = entityClass.newInstance();
-            ReflectUtils.setPropertyValue(Consts.RECORD_STATUS, Consts.RECORD_STATUS_INVALID, t);
+            ReflectUtils.setPropertyValue(Consts.RECORD_STATUS_PROPERTY, Consts.RECORD_STATUS_INVALID, t);
             return update(t, where);
         } catch (Exception e) {
             LOGGER.error("logicDelete error：{}", LogExceptionWapper.getStackTrace(e));

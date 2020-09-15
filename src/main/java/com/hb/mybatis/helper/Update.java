@@ -1,5 +1,7 @@
 package com.hb.mybatis.helper;
 
+import com.hb.unic.util.util.StringUtils;
+
 import java.util.Map;
 
 /**
@@ -27,7 +29,7 @@ public class Update {
             }
         });
         // 去掉最后一个逗号
-        String cloumnSql = cloumSb.toString().substring(0, cloumSb.toString().length() - 1);
+        String cloumnSql = StringUtils.lastBefore(cloumSb.toString(), ",");
         sb.append(cloumnSql).append(where.getWhereSql());
         return sb.toString();
     }

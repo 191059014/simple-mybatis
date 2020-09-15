@@ -1,6 +1,5 @@
 package com.hb.mybatis.helper;
 
-import com.hb.mybatis.SimpleMybatisContext;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
 
@@ -173,21 +172,13 @@ public class Where {
      */
     public String getWhereSql() {
         StringBuilder fullSql = new StringBuilder(" where ");
+        fullSql.append(Consts.RECORD_STATUS_COLUMN).append(" = ").append(Consts.RECORD_STATUS_VALID);
         if (sqlList.size() > 0) {
+            fullSql.append(" and ");
             for (String s : sqlList) {
                 fullSql.append(s);
             }
-            if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
-                fullSql.append(" and record_status = 1 ");
-            }
-        } else {
-            if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
-                fullSql.append(" record_status = 1 ");
-            } else {
-                fullSql.append(" 1=1 ");
-            }
         }
-
         return fullSql.toString();
     }
 

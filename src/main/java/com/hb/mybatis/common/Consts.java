@@ -7,8 +7,11 @@ package com.hb.mybatis.common;
  */
 public class Consts {
 
-    // 数据记录状态
-    public static final String RECORD_STATUS = "record_status";
+    // 数据记录状态列名
+    public static final String RECORD_STATUS_COLUMN = "record_status";
+
+    // 数据记录状态字段名
+    public static final String RECORD_STATUS_PROPERTY = "recordStatus";
 
     // 数据记录状态-有效
     public static final Integer RECORD_STATUS_VALID = 1;

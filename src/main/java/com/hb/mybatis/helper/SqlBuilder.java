@@ -128,7 +128,7 @@ public class SqlBuilder {
      * @return 字符串
      */
     public static String createSingleColumnSql(String columnName) {
-        return StringUtils.joint("#{cloumns.", columnName, "}");
+        return StringUtils.joint("#{columns.", columnName, "}");
     }
 
     /**
