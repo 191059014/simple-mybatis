@@ -13,26 +13,6 @@ import com.hb.unic.util.util.StringUtils;
 public class SqlBuilder {
 
     /**
-     * 生成#{params.paramName}字符串
-     *
-     * @param paramName 参数名
-     * @return 字符串
-     */
-    public static String createSingleParamSql(String paramName) {
-        return StringUtils.joint("#{params.", paramName, "}");
-    }
-
-    /**
-     * 生成#{cloumns.columnName}字符串
-     *
-     * @param columnName 参数名
-     * @return 字符串
-     */
-    public static String createSingleColumnSql(String columnName) {
-        return StringUtils.joint("#{cloumns.", columnName, "}");
-    }
-
-    /**
      * 构建单个查询条件
      *
      * @param queryType  查询类型
@@ -129,6 +109,73 @@ public class SqlBuilder {
     // 范围
     public static String betweenAnd(String columnName) {
         return StringUtils.joint(columnName, " between " + createSingleParamSql(columnName + 0) + " and " + createSingleParamSql(columnName + 1));
+    }
+
+    /**
+     * 生成#{params.paramName}字符串
+     *
+     * @param paramName 参数名
+     * @return 字符串
+     */
+    public static String createSingleParamSql(String paramName) {
+        return StringUtils.joint("#{params.", paramName, "}");
+    }
+
+    /**
+     * 生成#{cloumns.columnName}字符串
+     *
+     * @param columnName 参数名
+     * @return 字符串
+     */
+    public static String createSingleColumnSql(String columnName) {
+        return StringUtils.joint("#{cloumns.", columnName, "}");
+    }
+
+    /**
+     * 获取总条数sql
+     *
+     * @return sql
+     */
+    public static String getCountSql(String tableName, String where) {
+        return StringUtils.joint("select count(1) from ", tableName, where);
+    }
+
+    /**
+     * 获取完整的sql，不包含排序，不包含分页
+     *
+     * @return sql
+     */
+    public static String getSimpleSql(String tableName, String resultColumns, String where) {
+        return getSimpleSql(tableName, resultColumns, where, null, null, null);
+    }
+
+    /**
+     * 获取完整的sql，包含排序，不包含分页
+     *
+     * @return sql
+     */
+    public static String getSimpleSql(String tableName, String resultColumns, String where, String sort) {
+        return getSimpleSql(tableName, resultColumns, where, sort, null, null);
+    }
+
+    /**
+     * 获取完整的sql，包含排序，包含分页
+     *
+     * @return sql
+     */
+    public static String getSimpleSql(String tableName, String resultColumns, String where, String sort, Integer startRow, Integer pageSize) {
+        String resultColumnsSql = "*";
+        if (resultColumns != null && !"".equals(resultColumns)) {
+            resultColumnsSql = resultColumns;
+        }
+        String simpleSql = StringUtils.joint("select ", resultColumnsSql, " from ", tableName, where);
+        if (StringUtils.hasText(sort)) {
+            simpleSql += " order by " + sort;
+        }
+        if (startRow != null && pageSize != null && pageSize > 0) {
+            simpleSql += " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize");
+        }
+        return simpleSql;
     }
 
 }

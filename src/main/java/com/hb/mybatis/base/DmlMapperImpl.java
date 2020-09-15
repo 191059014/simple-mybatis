@@ -15,7 +15,6 @@ import com.hb.unic.util.tool.Assert;
 import com.hb.unic.util.util.CloneUtils;
 import com.hb.unic.util.util.Pagination;
 import com.hb.unic.util.util.ReflectUtils;
-import com.hb.unic.util.util.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -477,20 +476,10 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return sql
      */
     private String getSimpleSql(String resultColumns, Where where, String sort, Integer startRow, Integer pageSize) {
-        String resultColumnsSql = "*";
-        if (resultColumns != null && !"".equals(resultColumns)) {
-            resultColumnsSql = resultColumns;
+        if (where != null) {
+            where.addSingleParam("startRow", startRow).addSingleParam("pageSize", pageSize);
         }
-        String simpleSql = StringUtils.joint("select ", resultColumnsSql, " from ", tableName);
-        simpleSql += where == null ? "" : where.getWhereSql();
-        simpleSql += StringUtils.hasText(sort) ? " order by " + sort : "";
-        if (startRow != null && pageSize != null) {
-            simpleSql += " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize");
-            if (where != null) {
-                where.addSingleParam("startRow", startRow).addSingleParam("pageSize", pageSize);
-            }
-        }
-        return simpleSql;
+        return SqlBuilder.getSimpleSql(tableName, resultColumns, where == null ? "" : where.getWhereSql(), sort, startRow, pageSize);
     }
 
     /**
@@ -499,11 +488,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      * @return sql
      */
     private String getCountSql(Where where) {
-        String countSql = StringUtils.joint("select count(1) from ", tableName);
-        if (where != null) {
-            countSql += where.getWhereSql();
-        }
-        return countSql;
+        return SqlBuilder.getCountSql(tableName, where == null ? "" : where.getWhereSql());
     }
 
     /**

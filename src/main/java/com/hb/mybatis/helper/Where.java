@@ -1,5 +1,6 @@
 package com.hb.mybatis.helper;
 
+import com.hb.mybatis.SimpleMybatisContext;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
 import com.hb.unic.util.util.StringUtils;
@@ -35,10 +36,7 @@ public class Where {
      * @return Where
      */
     public static Where build() {
-        Where where = new Where();
-        where.sql(" where ");
-        where.sql(SqlBuilder.create(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID));
-        return where;
+        return new Where();
     }
 
     /**
@@ -54,7 +52,9 @@ public class Where {
     public <T> Where addAll(Map<String, Object> map) {
         map.forEach((key, value) -> {
             if (value != null && !"".equals(value.toString())) {
-                and();
+                if (sqlList.size() > 0) {
+                    and();
+                }
                 sqlList.add(SqlBuilder.create(QueryType.EQUAL, key));
                 params.put(key, value);
             }
@@ -173,7 +173,19 @@ public class Where {
      * @return sql
      */
     public String getWhereSql() {
-        return sqlList.size() > 0 ? StringUtils.joint(sqlList.toArray(new String[0])) : "";
+        StringBuilder fullSql = new StringBuilder();
+        if (sqlList.size() > 0) {
+            fullSql.append(" where ");
+            if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
+                fullSql.append(SqlBuilder.create(QueryType.EQUAL, Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID));
+                fullSql.append(" and ");
+                this.addSingleParam(Consts.RECORD_STATUS, Consts.RECORD_STATUS_VALID);
+            }
+            for (String s : sqlList) {
+                fullSql.append(s);
+            }
+        }
+        return fullSql.toString();
     }
 
     /**

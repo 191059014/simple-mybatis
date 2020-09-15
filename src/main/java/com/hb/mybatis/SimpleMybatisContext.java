@@ -1,8 +1,10 @@
 package com.hb.mybatis;
 
+import com.hb.mybatis.common.Consts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +30,15 @@ public class SimpleMybatisContext implements InitializingBean {
      */
     private static Map<String, String> maps = new HashMap<>(8);
 
+    /**
+     * 使用record_status字段
+     */
+    @Value("${simple.mybatis.userRecordStatus:true}")
+    private String useRecordStatus;
+
     @Override
     public void afterPropertiesSet() throws Exception {
+        maps.put(Consts.USE_RECORDSTATUS, useRecordStatus);
         LOGGER.info("SimpleMybatisContext accept properties: {}", maps);
     }
 
