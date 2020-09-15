@@ -380,7 +380,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
             return update(t, where);
         } catch (Exception e) {
             LOGGER.error("logicDelete error：{}", LogExceptionWapper.getStackTrace(e));
-            return 0;
+            throw new RuntimeException(e);
         }
 
     }
