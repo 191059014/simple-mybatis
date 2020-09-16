@@ -177,7 +177,6 @@ public interface IDmlMapper<T, PK, BK> {
      *
      * @param where 条件
      * @return 删除行数
-     * @see com.hb.mybatis.base.IDmlMapper#logicDelete(com.hb.mybatis.helper.Where)
      */
     int delete(Where where);
 
@@ -186,7 +185,6 @@ public interface IDmlMapper<T, PK, BK> {
      *
      * @param id id集合
      * @return 单条数据
-     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByPk(java.lang.Object)
      */
     int deleteByPk(PK id);
 
@@ -195,7 +193,6 @@ public interface IDmlMapper<T, PK, BK> {
      *
      * @param businessKey 业务主键
      * @return 单条数据
-     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByBk(java.lang.Object)
      */
     int deleteByBk(BK businessKey);
 

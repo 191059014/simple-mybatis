@@ -1,5 +1,6 @@
 package com.hb.mybatis.base;
 
+import com.hb.mybatis.SimpleMybatisContext;
 import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
@@ -327,7 +328,6 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      *
      * @param where 条件
      * @return 删除行数
-     * @see com.hb.mybatis.base.IDmlMapper#logicDelete(com.hb.mybatis.helper.Where)
      */
     @Override
     public int delete(Where where) {
@@ -341,7 +341,6 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      *
      * @param id id集合
      * @return 单条数据
-     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByPk(java.lang.Object)
      */
     @Override
     public int deleteByPk(PK id) {
@@ -355,7 +354,6 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      *
      * @param businessKey 业务主键
      * @return 单条数据
-     * @see com.hb.mybatis.base.IDmlMapper#logicDeleteByBk(java.lang.Object)
      */
     @Override
     public int deleteByBk(BK businessKey) {
@@ -373,6 +371,9 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int logicDelete(Where where) {
+        if (!SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
+            throw new RuntimeException("logic delete by record_status is not support");
+        }
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
         try {
             T t = entityClass.newInstance();
@@ -393,6 +394,9 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int logicDeleteByPk(PK id) {
+        if (!SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
+            throw new RuntimeException("logic delete by record_status is not support");
+        }
         Assert.notNull(id, "id is null");
         Where where = Where.build().add(QueryType.EQUAL, pk, id);
         return logicDelete(where);
@@ -406,6 +410,9 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int logicDeleteByBk(BK businessKey) {
+        if (!SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
+            throw new RuntimeException("logic delete by record_status is not support");
+        }
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
         Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
