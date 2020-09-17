@@ -141,7 +141,6 @@ public class Where {
     public String getWhereSql() {
         StringBuilder fullSql = new StringBuilder();
         if (sqlList.size() > 0) {
-            fullSql.append(" and ");
             for (String s : sqlList) {
                 fullSql.append(s);
             }

@@ -86,7 +86,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public T selectByPk(PK id) {
-        Where where = Where.build().add(QueryType.EQUAL, pk, id);
+        Where where = Where.build().and().add(QueryType.EQUAL, pk, id);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -100,7 +100,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public T selectByBk(BK businessKey) {
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
-        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -293,7 +293,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public int updateByPk(PK id, T entity) {
         Assert.notNull(id, "id is null");
-        Where where = Where.build().add(QueryType.EQUAL, pk, id);
+        Where where = Where.build().and().add(QueryType.EQUAL, pk, id);
         return update(entity, where);
     }
 
@@ -308,46 +308,53 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int updateByBk(BK businessKey, T entity) {
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
-        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
         return update(entity, where);
     }
 
     /**
      * 条件删除（逻辑删除）
      *
-     * @param where 条件
+     * @param where              条件
+     * @param withUpdateProperty 一同需要被更新的属性
      * @return 删除行数
      */
     @Override
-    public int logicDelete(Where where) {
-        return update(MapBuilder.build().add(Consts.RECORD_STATUS_PROPERTY, Consts.RECORD_STATUS_INVALID).get(Object.class), where);
+    public int logicDelete(Where where, Map<String, Object> withUpdateProperty) {
+        Map<String, Object> updateProperty = MapBuilder.build().add(Consts.RECORD_STATUS_PROPERTY, Consts.RECORD_STATUS_INVALID).get(Object.class);
+        if (withUpdateProperty != null && !withUpdateProperty.isEmpty()) {
+            updateProperty.putAll(withUpdateProperty);
+        }
+        return update(updateProperty, where);
     }
 
     /**
      * 通过主键删除（逻辑删除）
      *
-     * @param id id主键
+     * @param id                 id主键
+     * @param withUpdateProperty 一同需要被更新的属性
      * @return 删除行数
      */
     @Override
-    public int logicDeleteByPk(PK id) {
+    public int logicDeleteByPk(PK id, Map<String, Object> withUpdateProperty) {
         Assert.notNull(id, "id is null");
-        Where where = Where.build().add(QueryType.EQUAL, pk, id);
-        return logicDelete(where);
+        Where where = Where.build().and().add(QueryType.EQUAL, pk, id);
+        return logicDelete(where, withUpdateProperty);
     }
 
     /**
      * 通过业务主键删除（逻辑删除）
      *
-     * @param businessKey 业务主键
+     * @param businessKey        业务主键
+     * @param withUpdateProperty 一同需要被更新的属性
      * @return 删除行数
      */
     @Override
-    public int logicDeleteByBk(BK businessKey) {
+    public int logicDeleteByBk(BK businessKey, Map<String, Object> withUpdateProperty) {
         Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
-        Where where = Where.build().add(QueryType.EQUAL, bk, businessKey);
-        return logicDelete(where);
+        Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
+        return logicDelete(where, withUpdateProperty);
     }
 
     @Override

@@ -175,26 +175,29 @@ public interface IDmlMapper<T, PK, BK> {
     /**
      * 条件删除（逻辑删除）
      *
-     * @param where 条件
+     * @param where              条件
+     * @param withUpdateProperty 一同需要被更新的属性
      * @return 删除行数
      */
-    int logicDelete(Where where);
+    int logicDelete(Where where, Map<String, Object> withUpdateProperty);
 
     /**
      * 通过主键删除（逻辑删除）
      *
-     * @param id id主键
+     * @param id                 id主键
+     * @param withUpdateProperty 一同需要被更新的属性
      * @return 删除行数
      */
-    int logicDeleteByPk(PK id);
+    int logicDeleteByPk(PK id, Map<String, Object> withUpdateProperty);
 
     /**
      * 通过业务主键删除（逻辑删除）
      *
-     * @param businessKey 业务主键
+     * @param businessKey        业务主键
+     * @param withUpdateProperty 一同需要被更新的属性
      * @return 删除行数
      */
-    int logicDeleteByBk(BK businessKey);
+    int logicDeleteByBk(BK businessKey, Map<String, Object> withUpdateProperty);
 
 }
 

@@ -89,7 +89,7 @@ public class SqlBuilder {
 
     // 模糊匹配
     public static String like(String columnName) {
-        return StrUtils.joint(columnName, " like concat(" + createSingleParamSql(columnName) + "'%')");
+        return StrUtils.joint(columnName, " like concat(" + createSingleParamSql(columnName) + ",'%')");
     }
 
     // 包含
