@@ -32,91 +32,91 @@ public interface IDmlMapper<T, PK, BK> {
     /**
      * 条件查询单条数据
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @return 单条数据
      */
-    T selectOne(Object whereCondition);
+    T selectOne(Where whereCondition);
 
     /**
      * 条件查询数据集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @return 数据集合
      */
-    List<T> selectList(Object whereCondition);
+    List<T> selectList(Where whereCondition);
 
     /**
      * 条件查询数据集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @param sort           排序
      * @return 数据集合
      */
-    List<T> selectList(Object whereCondition, String sort);
+    List<T> selectList(Where whereCondition, String sort);
 
     /**
      * 条件查询数据集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @param sort           排序
      * @param startRow       开始行
      * @param pageSize       每页条数
      * @return 数据集合
      */
-    List<T> selectList(Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    List<T> selectList(Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 条件查询数据集合
      *
      * @param resultColumns  结果集对应所有列，多个用逗号分隔
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @param sort           排序
      * @param startRow       开始行
      * @param pageSize       每页条数
      * @return 数据集合
      */
-    List<T> selectList(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    List<T> selectList(String resultColumns, Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 查询总条数
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @return 总条数
      */
-    int selectCount(Object whereCondition);
+    int selectCount(Where whereCondition);
 
     /**
      * 分页查询集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @param startRow       开始行
      * @param pageSize       每页条数
      * @return 分页集合
      */
-    Pagination<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(Where whereCondition, Integer startRow, Integer pageSize);
 
     /**
      * 分页查询集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @param sort           排序
      * @param startRow       开始行
      * @param pageSize       每页条数
      * @return 分页集合
      */
-    Pagination<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 分页查询集合
      *
      * @param resultColumns  结果集对应所有列，多个用逗号分隔
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition where条件
      * @param sort           排序
      * @param startRow       开始行
      * @param pageSize       每页条数
      * @return 分页集合
      */
-    Pagination<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(String resultColumns, Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 自定义sql语句动态查询，要求写全where前面的sql
@@ -171,30 +171,6 @@ public interface IDmlMapper<T, PK, BK> {
      * @return 影响行数
      */
     int updateByBk(BK businessKey, T entity);
-
-    /**
-     * 条件删除（物理删除）
-     *
-     * @param where 条件
-     * @return 删除行数
-     */
-    int delete(Where where);
-
-    /**
-     * 通过主键删除（物理删除）
-     *
-     * @param id id集合
-     * @return 单条数据
-     */
-    int deleteByPk(PK id);
-
-    /**
-     * 通过业务主键删除（物理删除）
-     *
-     * @param businessKey 业务主键
-     * @return 单条数据
-     */
-    int deleteByBk(BK businessKey);
 
     /**
      * 条件删除（逻辑删除）

@@ -1,6 +1,6 @@
 package com.hb.mybatis.helper;
 
-import com.hb.unic.util.util.StringUtils;
+import com.hb.unic.util.util.StrUtils;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class Update {
      * @param where     条件集合
      * @return 更新sql语句
      */
-    public static String buildSelectiveSql(String tableName, Map<String, Object> property, Where where) {
+    public static String buildSql(String tableName, Map<String, Object> property, Where where) {
         StringBuilder sb = new StringBuilder("update " + tableName + " set ");
         StringBuilder cloumSb = new StringBuilder();
         property.forEach((key, value) -> {
@@ -29,7 +29,7 @@ public class Update {
             }
         });
         // 去掉最后一个逗号
-        String cloumnSql = StringUtils.lastBefore(cloumSb.toString(), ",");
+        String cloumnSql = StrUtils.lastBefore(cloumSb.toString(), ",");
         sb.append(cloumnSql).append(where.getWhereSql());
         return sb.toString();
     }

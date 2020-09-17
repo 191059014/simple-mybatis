@@ -15,7 +15,7 @@ public class Delete {
      * @param where     条件集合
      * @return 删除sql语句
      */
-    public static String buildSelectiveSql(String tableName, Where where) {
+    public static String buildSql(String tableName, Where where) {
         return "delete from " + tableName + where.getWhereSql();
     }
 

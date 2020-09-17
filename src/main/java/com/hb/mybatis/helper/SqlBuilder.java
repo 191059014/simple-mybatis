@@ -2,7 +2,7 @@ package com.hb.mybatis.helper;
 
 import com.hb.mybatis.enums.QueryType;
 import com.hb.unic.util.tool.Assert;
-import com.hb.unic.util.util.StringUtils;
+import com.hb.unic.util.util.StrUtils;
 
 /**
  * 查询类型
@@ -59,37 +59,37 @@ public class SqlBuilder {
 
     // 等于
     public static String equal(String columnName) {
-        return StringUtils.joint(columnName, " = ", createSingleParamSql(columnName));
+        return StrUtils.joint(columnName, " = ", createSingleParamSql(columnName));
     }
 
     // 不等于
     public static String notEqual(String columnName) {
-        return StringUtils.joint(columnName, " != ", createSingleParamSql(columnName));
+        return StrUtils.joint(columnName, " != ", createSingleParamSql(columnName));
     }
 
     // 大于
     public static String maxThan(String columnName) {
-        return StringUtils.joint(columnName, " > ", createSingleParamSql(columnName));
+        return StrUtils.joint(columnName, " > ", createSingleParamSql(columnName));
     }
 
     // 小于
     public static String minThan(String columnName) {
-        return StringUtils.joint(columnName, " < ", createSingleParamSql(columnName));
+        return StrUtils.joint(columnName, " < ", createSingleParamSql(columnName));
     }
 
     // 大于等于
     public static String maxEqualThan(String columnName) {
-        return StringUtils.joint(columnName, " >= ", createSingleParamSql(columnName));
+        return StrUtils.joint(columnName, " >= ", createSingleParamSql(columnName));
     }
 
     // 小于等于
     public static String minEqualThan(String columnName) {
-        return StringUtils.joint(columnName, " <= ", createSingleParamSql(columnName));
+        return StrUtils.joint(columnName, " <= ", createSingleParamSql(columnName));
     }
 
     // 模糊匹配
     public static String like(String columnName) {
-        return StringUtils.joint(columnName, " like concat(" + createSingleParamSql(columnName) + "'%')");
+        return StrUtils.joint(columnName, " like concat(" + createSingleParamSql(columnName) + "'%')");
     }
 
     // 包含
@@ -108,7 +108,7 @@ public class SqlBuilder {
 
     // 范围
     public static String betweenAnd(String columnName) {
-        return StringUtils.joint(columnName, " between " + createSingleParamSql(columnName + 0) + " and " + createSingleParamSql(columnName + 1));
+        return StrUtils.joint(columnName, " between " + createSingleParamSql(columnName + 0) + " and " + createSingleParamSql(columnName + 1));
     }
 
     /**
@@ -118,7 +118,7 @@ public class SqlBuilder {
      * @return 字符串
      */
     public static String createSingleParamSql(String paramName) {
-        return StringUtils.joint("#{params.", paramName, "}");
+        return StrUtils.joint("#{params.", paramName, "}");
     }
 
     /**
@@ -128,7 +128,7 @@ public class SqlBuilder {
      * @return 字符串
      */
     public static String createSingleColumnSql(String columnName) {
-        return StringUtils.joint("#{columns.", columnName, "}");
+        return StrUtils.joint("#{columns.", columnName, "}");
     }
 
     /**
@@ -137,7 +137,7 @@ public class SqlBuilder {
      * @return sql
      */
     public static String getCountSql(String tableName, String where) {
-        return StringUtils.joint("select count(1) from ", tableName, where);
+        return StrUtils.joint("select count(1) from ", tableName, where);
     }
 
     /**
@@ -168,8 +168,8 @@ public class SqlBuilder {
         if (resultColumns != null && !"".equals(resultColumns)) {
             resultColumnsSql = resultColumns;
         }
-        String simpleSql = StringUtils.joint("select ", resultColumnsSql, " from ", tableName, where);
-        if (StringUtils.hasText(sort)) {
+        String simpleSql = StrUtils.joint("select ", resultColumnsSql, " from ", tableName, where);
+        if (StrUtils.hasText(sort)) {
             simpleSql += " order by " + sort;
         }
         if (startRow != null && pageSize != null && pageSize > 0) {

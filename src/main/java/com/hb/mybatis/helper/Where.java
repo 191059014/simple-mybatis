@@ -1,8 +1,8 @@
 package com.hb.mybatis.helper;
 
-import com.hb.mybatis.SimpleMybatisContext;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
+import com.hb.unic.util.util.StrUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,29 +35,19 @@ public class Where {
      * @return Where
      */
     public static Where build() {
-        return new Where();
+        Where where = new Where();
+        where.sql(StrUtils.joint(" where ", Consts.RECORD_STATUS_COLUMN, " = ", Consts.RECORD_STATUS_VALID));
+        return where;
     }
 
     /**
-     * 添加多个查询条件
-     * <p>
-     * 1、key为数据库列名，value为值
-     * 2、所有条件均用equal操作符
-     * 3、字段与字段之间均用and
+     * 增加sql语句
      *
-     * @param map 条件集合
+     * @param sql sql语句
      * @return Where
      */
-    public <T> Where addAll(Map<String, Object> map) {
-        map.forEach((key, value) -> {
-            if (value != null && !"".equals(value.toString())) {
-                if (sqlList.size() > 0) {
-                    and();
-                }
-                sqlList.add(SqlBuilder.create(QueryType.EQUAL, key));
-                params.put(key, value);
-            }
-        });
+    public Where sql(String sql) {
+        sqlList.add(sql);
         return this;
     }
 
@@ -68,34 +58,11 @@ public class Where {
      * @param value 值
      * @return 当前对象
      */
-    public Where addParam(String key, Object value) {
+    public Where param(String key, Object value) {
         params.put(key, value);
         return this;
     }
 
-    /**
-     * 增加sql语句
-     *
-     * @param sql sql语句
-     * @return Where
-     */
-    public Where sql(String sql) {
-        return sql(sql, null);
-    }
-
-    /**
-     * 增加sql语句
-     *
-     * @param sql sql语句
-     * @return Where
-     */
-    public Where sql(String sql, Map<String, Object> params) {
-        sqlList.add(sql);
-        if (params != null && params.size() > 0) {
-            this.params.putAll(params);
-        }
-        return this;
-    }
 
     /**
      * 左括号
@@ -172,12 +139,7 @@ public class Where {
      * @return sql
      */
     public String getWhereSql() {
-        StringBuilder fullSql = new StringBuilder(" where ");
-        if (SimpleMybatisContext.getBooleanValue(Consts.USE_RECORDSTATUS)) {
-            fullSql.append("record_status = 1 ");
-        } else {
-            fullSql.append("1=1 ");
-        }
+        StringBuilder fullSql = new StringBuilder();
         if (sqlList.size() > 0) {
             fullSql.append(" and ");
             for (String s : sqlList) {
