@@ -2,6 +2,8 @@ package com.hb.mybatis.helper;
 
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
+import com.hb.unic.logger.Logger;
+import com.hb.unic.logger.LoggerFactory;
 import com.hb.unic.util.util.StrUtils;
 
 import java.util.ArrayList;
@@ -18,6 +20,11 @@ import java.util.Map;
  * @version v0.1, Where.java, 2020/5/26 10:14, create by huangbiao.
  */
 public class Where {
+
+    /**
+     * 日志
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Where.class);
 
     /**
      * sql语句
@@ -95,6 +102,19 @@ public class Where {
     }
 
     /**
+     * and+add，自动过滤值为空的情况
+     *
+     * @return Where
+     */
+    public Where andAdd(QueryType queryType, String columnName, Object value) {
+        if (shouldAdd(queryType, value)) {
+            and();
+            realAdd(queryType, columnName, value);
+        }
+        return this;
+    }
+
+    /**
      * or
      *
      * @return Where
@@ -110,25 +130,13 @@ public class Where {
      * 1、字段与字段之间是用and还是or需要手动填写
      *
      * @param queryType  操作类型
-     * @param columnName 字段名
+     * @param columnName 列名
      * @param value      值
      * @return QueryCondition
      */
     public Where add(QueryType queryType, String columnName, Object value) {
-        if (value != null && !"".equals(value.toString())) {
-            if (QueryType.IN.equals(queryType)) {
-                Collection collection = (Collection) value;
-                sqlList.add(SqlBuilder.create(queryType, columnName, collection.size()));
-                Iterator iterator = collection.iterator();
-                int index = 0;
-                while (iterator.hasNext()) {
-                    params.put(columnName + index, iterator.next());
-                    index++;
-                }
-            } else {
-                sqlList.add(SqlBuilder.create(queryType, columnName));
-                params.put(columnName, value);
-            }
+        if (shouldAdd(queryType, value)) {
+            realAdd(queryType, columnName, value);
         }
         return this;
     }
@@ -155,6 +163,52 @@ public class Where {
      */
     public Map<String, Object> getWhereParams() {
         return this.params;
+    }
+
+    /**
+     * 是否应该添加
+     *
+     * @param queryType 操作类型
+     * @param value     值
+     * @return true为应该添加
+     */
+    private boolean shouldAdd(QueryType queryType, Object value) {
+        if (value == null || "".equals(value.toString())) {
+            return false;
+        }
+        if (QueryType.IN.equals(queryType)) {
+            if (!(value instanceof Collection)) {
+                return false;
+            }
+            Collection collection = (Collection) value;
+            if (collection.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 真实添加
+     *
+     * @param queryType  操作类型
+     * @param columnName 列名
+     * @param value      值
+     */
+    private void realAdd(QueryType queryType, String columnName, Object value) {
+        if (QueryType.IN.equals(queryType)) {
+            Collection collection = (Collection) value;
+            sqlList.add(SqlBuilder.create(queryType, columnName, collection.size()));
+            Iterator iterator = collection.iterator();
+            int index = 0;
+            while (iterator.hasNext()) {
+                params.put(columnName + index, iterator.next());
+                index++;
+            }
+        } else {
+            sqlList.add(SqlBuilder.create(queryType, columnName));
+            params.put(columnName, value);
+        }
     }
 
 }
