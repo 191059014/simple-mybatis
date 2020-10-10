@@ -99,7 +99,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public T selectByBk(BK businessKey) {
-        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Assert.hasText(bk, "NoBusinessKey: " + entityClass.getName());
         Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
@@ -238,7 +238,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public List<Map<String, Object>> customSelect(String sqlStatement, Map<String, Object> conditionMap) {
-        Assert.notHasText(sqlStatement, "sqlStatementBeforeWhere is null");
+        Assert.hasText(sqlStatement, "sqlStatementBeforeWhere is null");
         return baseMapper.dynamicSelect(sqlStatement, conditionMap);
     }
 
@@ -306,7 +306,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int updateByBk(BK businessKey, T entity) {
-        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Assert.hasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
         Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
         return update(entity, where);
@@ -351,7 +351,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int logicDeleteByBk(BK businessKey, Map<String, Object> withUpdateProperty) {
-        Assert.notHasText(bk, "NoBusinessKey: " + entityClass.getName());
+        Assert.hasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
         Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
         return logicDelete(where, withUpdateProperty);
@@ -391,7 +391,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
             // 字段映射
             column2PropertyMap.put(columnName, propertyName);
         }
-        Assert.notHasText(pk, "NoPrimaryKey: " + entityClass.getName());
+        Assert.hasText(pk, "NoPrimaryKey: " + entityClass.getName());
         Assert.ifTrueThrows(property2ColumnMap.isEmpty() || column2PropertyMap.isEmpty(), "NoFieldEntity: " + entityClass.getName());
     }
 
