@@ -2,7 +2,10 @@ package com.hb.mybatis.helper;
 
 import com.hb.mybatis.enums.QueryType;
 import com.hb.unic.util.tool.Assert;
+import com.hb.unic.util.util.ObjectUtils;
 import com.hb.unic.util.util.StrUtils;
+
+import java.util.Map;
 
 /**
  * 查询类型
@@ -11,6 +14,46 @@ import com.hb.unic.util.util.StrUtils;
  * @since 2020/5/8 11:14
  */
 public class SqlBuilder {
+
+    /**
+     * 查询语句sql模板
+     */
+    private static final String SELECT_SQL_TEMPLATE = "select %s from %s %s ";
+
+    /**
+     * 排序语句sql模板
+     */
+    private static final String SORT_SQL_TEMPLATE = "order by %s ";
+
+    /**
+     * 分页查询语句sql模板
+     */
+    private static final String LIMIT_SQL_TEMPLATE = "limit %s,%s";
+
+    /**
+     * 插入sql模板
+     */
+    private static final String INSERT_SQL_TEMPLATE = "insert into %s (%s) values (%s)";
+
+    /**
+     * 更新sql模板
+     */
+    private static final String UPDATE_SQL_TEMPLATE = "update %s set %s %s";
+
+    /**
+     * 删除sql语句模板
+     */
+    private static final String DELETE_SQL_TEMPLATE = "delete from %s %s";
+
+    /**
+     * 参数sql模板
+     */
+    public static final String PARAM_SQL_TEMPLATE = "#{params.%s}";
+
+    /**
+     * 列名sql模板
+     */
+    public static final String COLUMN_SQL_TEMPLATE = "#{columns.%s}";
 
     /**
      * 构建单个查询条件
@@ -89,26 +132,25 @@ public class SqlBuilder {
 
     // 模糊匹配
     public static String like(String columnName) {
-        return StrUtils.joint(columnName, " like concat(" + createSingleParamSql(columnName) + ",'%')");
+        return StrUtils.joint(columnName, " like concat(", createSingleParamSql(columnName), ",'%')");
     }
 
     // 包含
     public static String in(String columnName, int length) {
+        String inSqlTemplate = " %s in (%s) ";
         StringBuilder sb = new StringBuilder();
-        sb.append(columnName).append(" in (");
         for (int i = 0; i < length; i++) {
             sb.append(createSingleParamSql(columnName + i));
             if (i != length - 1) {
                 sb.append(",");
             }
         }
-        sb.append(")");
-        return sb.toString();
+        return String.format(inSqlTemplate, columnName, sb.toString());
     }
 
     // 范围
     public static String betweenAnd(String columnName) {
-        return StrUtils.joint(columnName, " between " + createSingleParamSql(columnName + 0) + " and " + createSingleParamSql(columnName + 1));
+        return StrUtils.joint(columnName, " between ", createSingleParamSql(columnName + 0), " and ", createSingleParamSql(columnName + 1));
     }
 
     /**
@@ -164,18 +206,68 @@ public class SqlBuilder {
      * @return sql
      */
     public static String getSimpleSql(String tableName, String resultColumns, String where, String sort, Integer startRow, Integer pageSize) {
-        String resultColumnsSql = "*";
-        if (resultColumns != null && !"".equals(resultColumns)) {
-            resultColumnsSql = resultColumns;
-        }
-        String simpleSql = StrUtils.joint("select ", resultColumnsSql, " from ", tableName, where);
-        if (StrUtils.hasText(sort)) {
-            simpleSql += " order by " + sort;
-        }
-        if (startRow != null && pageSize != null && pageSize > 0) {
-            simpleSql += " limit " + SqlBuilder.createSingleParamSql("startRow") + "," + SqlBuilder.createSingleParamSql("pageSize");
-        }
-        return simpleSql;
+        String resultColumnsSql = StrUtils.hasText(resultColumns) ? resultColumns : "*";
+        String selectSql = String.format(SELECT_SQL_TEMPLATE, resultColumnsSql, tableName, where);
+        String sortSql = StrUtils.hasText(sort) ? String.format(SORT_SQL_TEMPLATE, sort) : "";
+        String limitSql = ObjectUtils.isAnyNotNull(startRow, pageSize) ? String.format(LIMIT_SQL_TEMPLATE, SqlBuilder.createSingleParamSql("startRow"), SqlBuilder.createSingleParamSql("pageSize")) : "";
+        return StrUtils.joint(selectSql, sortSql, limitSql);
+    }
+
+    /**
+     * 构建插入sql语句
+     *
+     * @param tableName 表名
+     * @param property  字段集合
+     * @return 插入sql语句
+     */
+    public static String createInsertSql(String tableName, Map<String, Object> property) {
+        // 插入的列
+        StringBuilder columnSb = new StringBuilder();
+        // 插入的列对应的值
+        StringBuilder propertySb = new StringBuilder();
+        property.forEach((key, value) -> {
+            if (value != null) {
+                columnSb.append(key).append(", ");
+                propertySb.append(SqlBuilder.createSingleParamSql(key)).append(", ");
+            }
+        });
+        // 去掉末尾的逗号
+        String cloumnSql = StrUtils.lastBefore(columnSb.toString(), ", ");
+        String propertySql = StrUtils.lastBefore(propertySb.toString(), ", ");
+        return String.format(INSERT_SQL_TEMPLATE, tableName, cloumnSql, propertySql);
+    }
+
+    /**
+     * 构建更新sql语句
+     *
+     * @param tableName 表名
+     * @param property  字段集合
+     * @param where     条件集合
+     * @return 更新sql语句
+     */
+    public static String createUpdateSql(String tableName, Map<String, Object> property, Where where) {
+        StringBuilder columnSb = new StringBuilder();
+        property.forEach((key, value) -> {
+            if (value != null) {
+                columnSb.append(key).append("=").append(SqlBuilder.createSingleColumnSql(key)).append(", ");
+            }
+        });
+        // 去掉最后一个逗号
+        String cloumnSql = StrUtils.lastBefore(columnSb.toString(), ",");
+        return String.format(UPDATE_SQL_TEMPLATE, tableName, cloumnSql, where.getWhereSql());
+    }
+
+    /**
+     * 构建删除sql语句
+     *
+     * @param tableName
+     *            表名
+     * @param where
+     *            条件集合
+     * @return 删除sql语句
+     */
+    public static String createDeleteSql(String tableName, Where where) {
+        return String.format(DELETE_SQL_TEMPLATE, tableName, where.getWhereSql());
     }
 
 }

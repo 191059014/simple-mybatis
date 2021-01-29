@@ -19,8 +19,6 @@ public class Consts {
     // 数据记录状态-无效
     public static final Integer RECORD_STATUS_INVALID = 0;
 
-    // 使用record_status字段
-    public static final String USE_RECORDSTATUS = "useRecordStatus";
 }
 
     

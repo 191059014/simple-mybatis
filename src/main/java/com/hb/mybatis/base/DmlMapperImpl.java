@@ -4,9 +4,7 @@ import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
-import com.hb.mybatis.helper.Insert;
 import com.hb.mybatis.helper.SqlBuilder;
-import com.hb.mybatis.helper.Update;
 import com.hb.mybatis.helper.Where;
 import com.hb.mybatis.mapper.BaseMapper;
 import com.hb.unic.util.easybuild.MapBuilder;
@@ -266,7 +264,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.notNull(entity, "entity of insert is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
         Map<String, Object> columnMap = convertPropertyNameToColumnName(property);
-        String sqlStatement = Insert.buildSql(this.tableName, columnMap);
+        String sqlStatement = SqlBuilder.createInsertSql(this.tableName, columnMap);
         return baseMapper.insertSelective(sqlStatement, columnMap);
     }
 
@@ -459,7 +457,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
         Assert.notNull(updateProperty == null || updateProperty.isEmpty(), "updateProperty is null");
         Map<String, Object> columnMap = convertPropertyNameToColumnName(updateProperty);
-        String sqlStatement = Update.buildSql(this.tableName, columnMap, where);
+        String sqlStatement = SqlBuilder.createUpdateSql(this.tableName, columnMap, where);
         return baseMapper.updateBySelective(sqlStatement, columnMap, where.getWhereParams());
     }
 
