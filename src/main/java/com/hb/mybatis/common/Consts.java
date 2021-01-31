@@ -14,10 +14,10 @@ public class Consts {
     public static final String RECORD_STATUS_PROPERTY = "recordStatus";
 
     // 数据记录状态-有效
-    public static final Integer RECORD_STATUS_VALID = 1;
+    public static final Integer RECORD_VALID = 1;
 
     // 数据记录状态-无效
-    public static final Integer RECORD_STATUS_INVALID = 0;
+    public static final Integer RECORD_INVALID = 0;
 
 }
 

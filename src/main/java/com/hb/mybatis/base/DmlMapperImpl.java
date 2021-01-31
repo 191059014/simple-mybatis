@@ -1,13 +1,13 @@
 package com.hb.mybatis.base;
 
+import com.alibaba.fastjson.JSON;
 import com.hb.mybatis.annotation.Column;
 import com.hb.mybatis.annotation.Table;
 import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
-import com.hb.mybatis.helper.SqlBuilder;
-import com.hb.mybatis.helper.Where;
 import com.hb.mybatis.mapper.BaseMapper;
-import com.hb.unic.util.easybuild.MapBuilder;
+import com.hb.mybatis.tool.SqlTemplate;
+import com.hb.mybatis.tool.Where;
 import com.hb.unic.util.tool.Assert;
 import com.hb.unic.util.util.CloneUtils;
 import com.hb.unic.util.util.Pagination;
@@ -84,7 +84,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public T selectByPk(PK id) {
-        Where where = Where.build().and().add(QueryType.EQUAL, pk, id);
+        Where where = Where.build().equal(pk, id);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -98,7 +98,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public T selectByBk(BK businessKey) {
         Assert.hasText(bk, "NoBusinessKey: " + entityClass.getName());
-        Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().equal(bk, businessKey);
         List<T> tList = this.selectList(null, where, null, null, null);
         return CollectionUtils.isEmpty(tList) ? null : tList.get(0);
     }
@@ -164,10 +164,10 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public List<T> selectList(String resultColumns, Where where, String sort, Integer startRow, Integer pageSize) {
-        String simpleSql = getSimpleSql(resultColumns, where, sort, startRow, pageSize);
-        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(simpleSql, where == null ? null : where.getWhereParams());
+        String simpleSql = SqlTemplate.getSimpleSql(tableName, resultColumns, where.getWhereSql(), sort, startRow, pageSize);
+        List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(simpleSql, where.getWhereParams());
         List<Map<String, Object>> propertyMap = convertColumnsNameToPropertyName(queryResult);
-        return CloneUtils.maps2Beans(propertyMap, entityClass);
+        return JSON.parseArray(JSON.toJSONString(propertyMap), entityClass);
     }
 
     /**
@@ -178,7 +178,9 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int selectCount(Where where) {
-        return baseMapper.selectCount(getCountSql(where), where == null ? null : where.getWhereParams());
+        String countSql = SqlTemplate.getCountSql(tableName, where == null ? "" : where.getWhereSql());
+        Map<String, Object> params = where == null ? null : where.getWhereParams();
+        return baseMapper.selectCount(countSql, params);
     }
 
     /**
@@ -250,7 +252,8 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public List<T> customSelect(String sqlStatement, Map<String, Object> conditionMap, Class<T> tClass) {
-        return CloneUtils.maps2Beans(customSelect(sqlStatement, conditionMap), tClass);
+        List<Map<String, Object>> mapList = customSelect(sqlStatement, conditionMap);
+        return JSON.parseArray(JSON.toJSONString(mapList), tClass);
     }
 
     /**
@@ -264,7 +267,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.notNull(entity, "entity of insert is null");
         Map<String, Object> property = CloneUtils.bean2Map(entity);
         Map<String, Object> columnMap = convertPropertyNameToColumnName(property);
-        String sqlStatement = SqlBuilder.createInsertSql(this.tableName, columnMap);
+        String sqlStatement = SqlTemplate.createInsertSql(this.tableName, columnMap);
         return baseMapper.insertSelective(sqlStatement, columnMap);
     }
 
@@ -291,7 +294,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public int updateByPk(PK id, T entity) {
         Assert.notNull(id, "id is null");
-        Where where = Where.build().and().add(QueryType.EQUAL, pk, id);
+        Where where = Where.build().equal(pk, id);
         return update(entity, where);
     }
 
@@ -306,23 +309,19 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int updateByBk(BK businessKey, T entity) {
         Assert.hasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
-        Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().equal(bk, businessKey);
         return update(entity, where);
     }
 
     /**
      * 条件删除（逻辑删除）
      *
-     * @param where              条件
-     * @param withUpdateProperty 一同需要被更新的属性
+     * @param where 条件
      * @return 删除行数
      */
     @Override
-    public int logicDelete(Where where, Map<String, Object> withUpdateProperty) {
-        Map<String, Object> updateProperty = MapBuilder.build().add(Consts.RECORD_STATUS_PROPERTY, Consts.RECORD_STATUS_INVALID).get(Object.class);
-        if (withUpdateProperty != null && !withUpdateProperty.isEmpty()) {
-            updateProperty.putAll(withUpdateProperty);
-        }
+    public int logicDelete(Where where, Map<String, Object> updateProperty) {
+        updateProperty.put(Consts.RECORD_STATUS_PROPERTY, Consts.RECORD_INVALID);
         return update(updateProperty, where);
     }
 
@@ -336,7 +335,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     @Override
     public int logicDeleteByPk(PK id, Map<String, Object> withUpdateProperty) {
         Assert.notNull(id, "id is null");
-        Where where = Where.build().and().add(QueryType.EQUAL, pk, id);
+        Where where = Where.build().andCondition(QueryType.EQUAL, pk, id);
         return logicDelete(where, withUpdateProperty);
     }
 
@@ -351,7 +350,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     public int logicDeleteByBk(BK businessKey, Map<String, Object> withUpdateProperty) {
         Assert.hasText(bk, "NoBusinessKey: " + entityClass.getName());
         Assert.notNull(businessKey, "businessKey is null");
-        Where where = Where.build().and().add(QueryType.EQUAL, bk, businessKey);
+        Where where = Where.build().andCondition(QueryType.EQUAL, bk, businessKey);
         return logicDelete(where, withUpdateProperty);
     }
 
@@ -426,27 +425,6 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
     }
 
     /**
-     * 获取完整的sql，包含排序，包含分页
-     *
-     * @return sql
-     */
-    private String getSimpleSql(String resultColumns, Where where, String sort, Integer startRow, Integer pageSize) {
-        if (where != null) {
-            where.param("startRow", startRow).param("pageSize", pageSize);
-        }
-        return SqlBuilder.getSimpleSql(tableName, resultColumns, where == null ? "" : where.getWhereSql(), sort, startRow, pageSize);
-    }
-
-    /**
-     * 获取总条数sql
-     *
-     * @return sql
-     */
-    private String getCountSql(Where where) {
-        return SqlBuilder.getCountSql(tableName, where == null ? "" : where.getWhereSql());
-    }
-
-    /**
      * 选择性更新
      *
      * @param updateProperty 需要更新的实体类字段集合
@@ -457,7 +435,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
         Assert.ifTrueThrows(where == null || where.getWhereSql() == null || "".equals(where.getWhereSql()), "where conditions is empty");
         Assert.notNull(updateProperty == null || updateProperty.isEmpty(), "updateProperty is null");
         Map<String, Object> columnMap = convertPropertyNameToColumnName(updateProperty);
-        String sqlStatement = SqlBuilder.createUpdateSql(this.tableName, columnMap, where);
+        String sqlStatement = SqlTemplate.createUpdateSql(this.tableName, columnMap, where);
         return baseMapper.updateBySelective(sqlStatement, columnMap, where.getWhereParams());
     }
 

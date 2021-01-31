@@ -7,6 +7,28 @@ package com.hb.mybatis.enums;
  */
 public enum QueryType {
 
-    EQUAL, NOT_EQUAL, MAX_THAN, MIN_THAN, MAX_EQUAL_THAN, MIN_EQUAL_THAN, LIKE, IN, BETWEEN_AND
+    EQUAL(" %s = #{params.%s} "),
+    NOT_EQUAL(" %s != #{params.%s}"),
+    MAX_THAN(" %s > #{params.%s} "),
+    MIN_THAN(" %s < #{params.%s} "),
+    MAX_EQUAL_THAN(" %s >= #{params.%s} "),
+    MIN_EQUAL_THAN(" %s <= #{params.%s} "),
+    LIKE(" %s like concat(%s,'%') "),
+    IN(" %s in (%s) "),
+    BETWEEN_AND(" %s between #{params.%s} and #{params.%s} "),
+    ;
+
+    /**
+     * sql模板
+     */
+    private String sqlTemplate;
+
+    QueryType(String sqlTemplate) {
+        this.sqlTemplate = sqlTemplate;
+    }
+
+    public String getSqlTemplate() {
+        return sqlTemplate;
+    }
 
 }

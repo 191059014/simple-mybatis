@@ -1,6 +1,6 @@
 package com.hb.mybatis.base;
 
-import com.hb.mybatis.helper.Where;
+import com.hb.mybatis.tool.Where;
 import com.hb.unic.util.util.Pagination;
 
 import java.util.List;
