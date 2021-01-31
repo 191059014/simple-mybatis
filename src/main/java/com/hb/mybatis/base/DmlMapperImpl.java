@@ -321,6 +321,7 @@ public class DmlMapperImpl<T, PK, BK> implements InitializingBean, IDmlMapper<T,
      */
     @Override
     public int logicDelete(Where where, Map<String, Object> updateProperty) {
+        where.equal(Consts.RECORD_STATUS_COLUMN, Consts.RECORD_INVALID);
         updateProperty.put(Consts.RECORD_STATUS_PROPERTY, Consts.RECORD_INVALID);
         return update(updateProperty, where);
     }
