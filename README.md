@@ -19,11 +19,12 @@ public interface ISysUserService extends IDmlMapper<SysUserDO> {}
 ```
 IDmlMapper接口方法如下:  
 ```
-package com.hb.mybatis.base;
+package com.hb.mybatis.core;
 
 import com.hb.mybatis.toolkit.Where;
-import com.hb.mybatis.model.PageResult;
+import com.hb.unic.util.util.Pagination;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -35,176 +36,221 @@ import java.util.Map;
 public interface IDmlMapper<T> {
 
     /**
-     * 条件查询单条数据
+     * 根据数据库主键查询
      *
-     * @param id id集合
-     * @return 单条数据
+     * @param id
+     *            数据库主键
+     * @return 结果
      */
-    T selectById(Object id);
+    T selectById(Serializable id);
 
     /**
      * 条件查询单条数据
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @return 单条数据
+     * @param whereCondition
+     *            where条件
+     * @return 结果
      */
-    T selectOne(Object whereCondition);
+    T selectOne(Where whereCondition);
 
     /**
      * 条件查询数据集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @return 数据集合
+     * @param whereCondition
+     *            where条件
+     * @return 结果
      */
-    List<T> selectList(Object whereCondition);
+    List<T> selectList(Where whereCondition);
 
     /**
      * 条件查询数据集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @param sort           排序
-     * @return 数据集合
+     * @param whereCondition
+     *            where条件
+     * @param sort
+     *            排序
+     * @return 结果
      */
-    List<T> selectList(Object whereCondition, String sort);
+    List<T> selectList(Where whereCondition, String sort);
 
     /**
      * 条件查询数据集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @param sort           排序
-     * @param startRow       开始行
-     * @param pageSize       每页条数
-     * @return 数据集合
+     * @param whereCondition
+     *            where条件
+     * @param sort
+     *            排序
+     * @param startRow
+     *            开始行
+     * @param pageSize
+     *            每页条数
+     * @return 结果
      */
-    List<T> selectList(Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    List<T> selectList(Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 条件查询数据集合
      *
-     * @param resultColumns  结果集对应所有列，多个用逗号分隔
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @param sort           排序
-     * @param startRow       开始行
-     * @param pageSize       每页条数
+     * @param resultColumns
+     *            结果集对应所有列，多个用逗号分隔
+     * @param whereCondition
+     *            where条件
+     * @param sort
+     *            排序
+     * @param startRow
+     *            开始行
+     * @param pageSize
+     *            每页条数
      * @return 数据集合
      */
-    List<T> selectList(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    List<T> selectList(String resultColumns, Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 查询总条数
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
+     * @param whereCondition
+     *            where条件
      * @return 总条数
      */
-    int selectCount(Object whereCondition);
+    int selectCount(Where whereCondition);
 
     /**
      * 分页查询集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @param startRow       开始行
-     * @param pageSize       每页条数
+     * @param whereCondition
+     *            where条件
+     * @param startRow
+     *            开始行
+     * @param pageSize
+     *            每页条数
      * @return 分页集合
      */
-    PageResult<T> selectPages(Object whereCondition, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(Where whereCondition, Integer startRow, Integer pageSize);
 
     /**
      * 分页查询集合
      *
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @param sort           排序
-     * @param startRow       开始行
-     * @param pageSize       每页条数
+     * @param whereCondition
+     *            where条件
+     * @param sort
+     *            排序
+     * @param startRow
+     *            开始行
+     * @param pageSize
+     *            每页条数
      * @return 分页集合
      */
-    PageResult<T> selectPages(Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(Where whereCondition, String sort, Integer startRow, Integer pageSize);
 
     /**
      * 分页查询集合
      *
-     * @param resultColumns  结果集对应所有列，多个用逗号分隔
-     * @param whereCondition where条件，只能是com.hb.mybatis.sql.Where或者T类型
-     * @param sort           排序
-     * @param startRow       开始行
-     * @param pageSize       每页条数
+     * @param resultColumns
+     *            结果集对应所有列，多个用逗号分隔
+     * @param whereCondition
+     *            where条件
+     * @param sort
+     *            排序
+     * @param startRow
+     *            开始行
+     * @param pageSize
+     *            每页条数
      * @return 分页集合
      */
-    PageResult<T> selectPages(String resultColumns, Object whereCondition, String sort, Integer startRow, Integer pageSize);
+    Pagination<T> selectPages(String resultColumns, Where whereCondition, String sort, Integer startRow,
+        Integer pageSize);
 
     /**
      * 自定义sql语句动态查询，要求写全where前面的sql
      *
-     * @param sqlStatementBeforeWhere where前面的sql语句
-     * @param where                   where条件
+     * @param sqlStatement
+     *            where前面的sql语句
+     * @param conditionMap
+     *            查询条件取值集合
      * @return 结果集合
      */
-    List<Map<String, Object>> customSelect(String sqlStatementBeforeWhere, Where where);
+    List<Map<String, Object>> customSelect(String sqlStatement, Map<String, Object> conditionMap);
+
+    /**
+     * 自定义sql语句动态查询，要求写全where前面的sql
+     *
+     * @param sqlStatement
+     *            where前面的sql语句
+     * @param conditionMap
+     *            查询条件值集合
+     * @param tClass
+     *            将结果集转换的类
+     * @return T
+     */
+    List<T> customSelect(String sqlStatement, Map<String, Object> conditionMap, Class<T> tClass);
 
     /**
      * 选择性插入
      *
-     * @param entity 实体类对象
+     * @param entity
+     *            实体类对象
      * @return 插入行数
      */
-    int insertBySelective(T entity);
-
-    /**
-     * 选择性更新
-     *
-     * @param entity 实体类对象
-     * @param where  条件
-     * @return 更新行数
-     */
-    int updateBySelective(T entity, Where where);
+    int insert(T entity);
 
     /**
      * 通过ID更新
      *
-     * @param id     id
-     * @param entity 更新的信息
-     * @return 单条数据
+     * @param id
+     *            id
+     * @param entity
+     *            更新的信息
+     * @return 影响的行数
      */
-    int updateById(Object id, T entity);
+    int updateById(Serializable id, T entity);
 
     /**
-     * 选择性删除，物理删除，逻辑删除请使用logicDelete
+     * 选择性更新
      *
-     * @param where 条件
-     * @return 删除行数
+     * @param where
+     *            条件
+     * @param entity
+     *            实体类对象
+     * @return 更新行数
      */
-    int deleteBySelective(Where where);
+    int update(Where where, T entity);
 
     /**
-     * 条件查询单条数据
+     * 通过map更新
      *
-     * @param id id集合
-     * @return 单条数据
+     * @param where
+     *            条件
+     * @param propertyMap
+     *            更新的信息
+     * @return 影响的行数
      */
-    int deleteById(Object id);
+    int updateByMap(Where where, Map<String, Object> propertyMap);
 
     /**
-     * 逻辑删除
-     *
-     * @param where 条件
-     * @return 删除行数
+     * 通过主键删除
+     * 
+     * @param id
+     *            主键
+     * @return 影响的行数
      */
-    int logicDelete(Where where);
+    int deleteById(Serializable id);
 
     /**
-     * 逻辑删除
-     *
-     * @param id id主键
-     * @return 删除行数
+     * 通过Where删除
+     * 
+     * @param where
+     *            where条件对象
+     * @return 影响的行数
      */
-    int logicDeleteById(Object id);
+    int delete(Where where);
 
 }
 
     
 ```
-## 实体类加@Table，@Column，@Id注解，配置表名、字段映射、主键
-其中，@Table和@Id注解是必须的，要设置表名和id主键；  
+## 实体类加@Table，@Column注解，配置表名、字段映射
+其中，@Table和@Column注解是必须的，要设置表名和id主键；  
 
 ## 其他
-更多实用的方法、小工具，请重点查看DmlMapper，SqlBuilder，Where，Delete，Insert，Update等类。
+更多实用的方法、小工具，请重点查看IDmlMapper接口，Where，SqlTemplate等类。
 
