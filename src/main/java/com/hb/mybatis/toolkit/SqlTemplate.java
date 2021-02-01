@@ -1,4 +1,4 @@
-package com.hb.mybatis.tool;
+package com.hb.mybatis.toolkit;
 
 import com.hb.unic.util.util.ObjectUtils;
 import com.hb.unic.util.util.StrUtils;

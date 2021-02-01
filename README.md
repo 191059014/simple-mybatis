@@ -21,7 +21,7 @@ IDmlMapper接口方法如下:
 ```
 package com.hb.mybatis.base;
 
-import com.hb.mybatis.tool.Where;
+import com.hb.mybatis.toolkit.Where;
 import com.hb.mybatis.model.PageResult;
 
 import java.util.List;

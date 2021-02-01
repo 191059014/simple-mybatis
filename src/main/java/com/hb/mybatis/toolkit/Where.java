@@ -1,6 +1,5 @@
-package com.hb.mybatis.tool;
+package com.hb.mybatis.toolkit;
 
-import com.hb.mybatis.common.Consts;
 import com.hb.mybatis.enums.QueryType;
 import com.hb.unic.logger.Logger;
 import com.hb.unic.logger.LoggerFactory;
@@ -39,14 +38,16 @@ public class Where {
      * @return Where
      */
     public static Where build() {
-        return new Where().addSql(" where " + Consts.RECORD_STATUS_COLUMN + " = " + Consts.RECORD_VALID);
+        return new Where().addSql(" where 1=1 ");
     }
 
     /**
      * 等于
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where equal(String columnName, Object value) {
@@ -57,8 +58,10 @@ public class Where {
     /**
      * 不等于
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where notEqual(String columnName, Object value) {
@@ -69,8 +72,10 @@ public class Where {
     /**
      * 大于
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where maxThan(String columnName, Object value) {
@@ -81,8 +86,10 @@ public class Where {
     /**
      * 小于
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where minThan(String columnName, Object value) {
@@ -93,8 +100,10 @@ public class Where {
     /**
      * 大于等于
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where maxEqualThan(String columnName, Object value) {
@@ -105,8 +114,10 @@ public class Where {
     /**
      * 小于等于
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where minEqualThan(String columnName, Object value) {
@@ -117,8 +128,10 @@ public class Where {
     /**
      * 模糊匹配
      *
-     * @param columnName 列名
-     * @param value      值
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where like(String columnName, Object value) {
@@ -129,8 +142,10 @@ public class Where {
     /**
      * in条件
      *
-     * @param columnName 列名
-     * @param collection 集合值
+     * @param columnName
+     *            列名
+     * @param collection
+     *            集合值
      * @return Where
      */
     public Where in(String columnName, Collection collection) {
@@ -141,13 +156,16 @@ public class Where {
     /**
      * between and条件
      *
-     * @param columnName 列名
-     * @param value0     第一个值
-     * @param value1     第二个值
+     * @param columnName
+     *            列名
+     * @param value0
+     *            第一个值
+     * @param value1
+     *            第二个值
      * @return Where
      */
     public Where betweenAnd(String columnName, Object value0, Object value1) {
-        this.buildSingleWhereCondition(QueryType.BETWEEN_AND, columnName, new Object[]{value0, value1});
+        this.buildSingleWhereCondition(QueryType.BETWEEN_AND, columnName, new Object[] {value0, value1});
         return this;
     }
 
@@ -242,9 +260,12 @@ public class Where {
     /**
      * and条件查询，如果value为空或空字符串，则不进行任何操作
      *
-     * @param queryType  查询类型
-     * @param columnName 列名
-     * @param value      值
+     * @param queryType
+     *            查询类型
+     * @param columnName
+     *            列名
+     * @param value
+     *            值
      * @return Where
      */
     public Where andCondition(QueryType queryType, String columnName, Object value) {
@@ -258,13 +279,16 @@ public class Where {
     /**
      * 构建单个where条件sql语句
      *
-     * @param queryType  查询条件类型
-     * @param columnName 列名
-     * @param value      条件值
+     * @param queryType
+     *            查询条件类型
+     * @param columnName
+     *            列名
+     * @param value
+     *            条件值
      */
     private void buildSingleWhereCondition(QueryType queryType, String columnName, Object value) {
         if (QueryType.IN.equals(queryType)) {
-            Collection collection = (Collection) value;
+            Collection collection = (Collection)value;
             int size = collection.size();
             int index = 0;
             StringBuilder inSql = new StringBuilder();
@@ -280,7 +304,7 @@ public class Where {
             }
             this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, inSql));
         } else if (QueryType.BETWEEN_AND.equals(queryType)) {
-            Object[] objArr = (Object[]) value;
+            Object[] objArr = (Object[])value;
             String columnName0 = columnName + "_0";
             String columnName1 = columnName + "_1";
             this.params.put(columnName0, objArr[0]);
@@ -291,10 +315,9 @@ public class Where {
             this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, value));
         } else {
             this.params.put(columnName, value);
-            this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, queryType.getSqlTemplate(), value));
+            this.whereSql
+                .append(String.format(queryType.getSqlTemplate(), columnName, queryType.getSqlTemplate(), value));
         }
     }
 
 }
-
-    

@@ -1,6 +1,10 @@
 package com.hb.mybatis.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 列注解
@@ -21,10 +25,5 @@ public @interface Column {
      * 是否是数据库主键
      */
     boolean isPk() default false;
-
-    /**
-     * 是否是业务主键
-     */
-    boolean isBk() default false;
 
 }
