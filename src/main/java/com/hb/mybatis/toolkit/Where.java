@@ -312,11 +312,10 @@ public class Where {
             this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, columnName0, columnName1));
         } else if (QueryType.LIKE.equals(queryType)) {
             this.params.put(columnName, value);
-            this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, value));
+            this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, columnName));
         } else {
             this.params.put(columnName, value);
-            this.whereSql
-                .append(String.format(queryType.getSqlTemplate(), columnName, queryType.getSqlTemplate(), value));
+            this.whereSql.append(String.format(queryType.getSqlTemplate(), columnName, columnName));
         }
     }
 

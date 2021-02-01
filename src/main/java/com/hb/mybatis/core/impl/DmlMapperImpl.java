@@ -103,6 +103,8 @@ public class DmlMapperImpl<T> implements IDmlMapper<T> {
     public List<T> selectList(String resultColumns, Where where, String sort, Integer startRow, Integer pageSize) {
         String simpleSql =
             SqlTemplate.getSimpleSql(tableName, resultColumns, where.getWhereSql(), sort, startRow, pageSize);
+        where.addParam("startRow", startRow);
+        where.addParam("pageSize", pageSize);
         List<Map<String, Object>> queryResult = baseMapper.dynamicSelect(simpleSql, where.getWhereParams());
         List<Map<String, Object>> propertyMap = convertColumnsNameToPropertyName(queryResult);
         return JSON.parseArray(JSON.toJSONString(propertyMap), entityClass);

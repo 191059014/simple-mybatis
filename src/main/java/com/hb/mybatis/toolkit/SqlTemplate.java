@@ -116,7 +116,7 @@ public class SqlTemplate {
         StringBuilder columnSb = new StringBuilder();
         property.forEach((key, value) -> {
             if (value != null) {
-                columnSb.append(key).append("=").append(String.format(PARAM_SQL_TEMPLATE, key)).append(", ");
+                columnSb.append(key).append("=").append(String.format(COLUMN_SQL_TEMPLATE, key)).append(", ");
             }
         });
         // 去掉最后一个逗号
