@@ -13,7 +13,7 @@ public enum QueryType {
     MIN_THAN(" %s < #{params.%s} "),
     MAX_EQUAL_THAN(" %s >= #{params.%s} "),
     MIN_EQUAL_THAN(" %s <= #{params.%s} "),
-    LIKE(" %s like concat(%s,'%%') "),
+    LIKE(" %s like concat(#{params.%s},'%%') "),
     IN(" %s in (%s) "),
     BETWEEN_AND(" %s between #{params.%s} and #{params.%s} "),;
 

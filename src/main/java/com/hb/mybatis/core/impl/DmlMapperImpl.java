@@ -184,7 +184,7 @@ public class DmlMapperImpl<T> implements IDmlMapper<T> {
     @Override
     public int deleteById(Serializable id) {
         Assert.notNull(id, "id is null");
-        return delete(Where.build().equal(idColumnName, id));
+        return delete(Where.build().and().equal(idColumnName, id));
     }
 
     @Override
